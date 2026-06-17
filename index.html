@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -476,6 +477,30 @@ header p{color:var(--g500);font-size:.9rem;margin-bottom:12px}
   <div id="step3" class="hidden">
     <h2>Dagar &amp; fördelning</h2>
     <div class="days-summary"><h3>📊 Dagar per förälder</h3><div class="days-grid" id="daysGrid"></div></div>
+
+    <div class="xfer-section child-benefit-panel" id="childBenefitPanel" style="border-color:var(--amb500);background:linear-gradient(135deg,#fffdf5,#fff7fb)">
+      <h3>🧒 Barnbidrag och flerbarnstillägg</h3>
+      <p style="font-size:.81rem;color:var(--g500);margin-bottom:12px">Lägg till barnbidrag/flerbarnstillägg i månadsersättningen. Beloppen behandlas som skattefria och läggs därför direkt på netto.</p>
+      <div class="check-row" style="margin-bottom:12px">
+        <input type="checkbox" id="cbEnabled" onchange="updateChildBenefitFromInputs()">
+        <label for="cbEnabled" style="font-weight:700;color:var(--r700);font-size:.93rem">Lägg till barnbidrag i sammanställningen</label>
+      </div>
+      <div id="cbOptions" class="hidden">
+        <div class="form-grid">
+          <div class="form-group"><label>Antal barn</label>
+            <input type="number" id="cbChildren" min="1" max="20" step="1" value="1" oninput="updateChildBenefitFromInputs()">
+            <span class="form-hint">Barnbidrag 1 250 kr/barn och flerbarnstillägg enligt Försäkringskassans tabell.</span></div>
+          <div class="form-group"><label>Vem ska barnbidraget läggas på?</label>
+            <select id="cbMode" onchange="updateChildBenefitFromInputs()">
+              <option value="split">Båda föräldrarna delar</option>
+              <option value="p1">Förälder 1 får hela beloppet</option>
+              <option value="p2">Förälder 2 får hela beloppet</option>
+            </select>
+            <span class="form-hint">Vid delning delas både barnbidrag och flerbarnstillägg lika mellan föräldrarna.</span></div>
+        </div>
+        <div id="cbPreview" class="tax-note" style="margin-top:10px"></div>
+      </div>
+    </div>
 
     <div class="remaining-panel" id="remainingPanel">
       <h3>✏️ Kvarvarande dagar att fördela</h3>
@@ -2874,6 +2899,179 @@ loadPlan=function(ev){
 loadScenarioBundle=function(ev){
   loadPlan(ev);
 };
+
+
+// ═══════════════ V15: BARNBIDRAG OCH FLERBARNSTILLÄGG ═══════════════
+S.childBenefit=S.childBenefit||{enabled:false,children:1,mode:'split'};
+function normalizeChildBenefitConfig(cfg){
+  const c=cfg||{};
+  return {enabled:!!c.enabled,children:Math.max(1,Math.min(20,parseInt(c.children)||1)),mode:['split','p1','p2'].includes(c.mode)?c.mode:'split'};
+}
+function childBenefitMultiAmount(children){
+  const n=Math.max(0,parseInt(children)||0);
+  if(n<2)return 0;
+  if(n===2)return 150;
+  if(n===3)return 730;
+  if(n===4)return 1740;
+  return 1740+1250*(n-4);
+}
+function childBenefitHouseholdAmount(children){
+  const n=Math.max(0,parseInt(children)||0);
+  return 1250*n+childBenefitMultiAmount(n);
+}
+function childBenefitMonthIsActive(yr,mo){
+  const cfg=normalizeChildBenefitConfig(S.childBenefit);
+  if(!cfg.enabled)return false;
+  if(!S.birth)return true;
+  const firstMonth=new Date(S.birth.getFullYear(),S.birth.getMonth()+1,1);
+  return new Date(yr,mo,1)>=firstMonth;
+}
+function childBenefitByParentForMonth(yr,mo){
+  const out={};
+  for(const p of activeParents())out[p]=0;
+  const cfg=normalizeChildBenefitConfig(S.childBenefit);
+  if(!cfg.enabled||!childBenefitMonthIsActive(yr,mo))return out;
+  const amount=childBenefitHouseholdAmount(cfg.children);
+  const bases=typeof baseParents==='function'?baseParents():activeParents().filter(p=>p<=2);
+  if(cfg.mode==='split'){
+    const share=bases.length>1?amount/2:amount;
+    for(const p of bases)out[p]=(out[p]||0)+share;
+  }else{
+    const p=cfg.mode==='p2'&&S.numParents===2?2:1;
+    out[p]=(out[p]||0)+amount;
+  }
+  return out;
+}
+function childBenefitTotalForMonth(yr,mo){
+  const by=childBenefitByParentForMonth(yr,mo);
+  return Object.values(by).reduce((a,b)=>a+b,0);
+}
+function childBenefitLabelForParent(p,yr,mo){
+  const v=childBenefitByParentForMonth(yr,mo)[p]||0;
+  return v?` + barnbidrag ${fmt(v)}`:'';
+}
+function updateChildBenefitFromInputs(){
+  const enabled=document.getElementById('cbEnabled'),children=document.getElementById('cbChildren'),mode=document.getElementById('cbMode');
+  S.childBenefit=normalizeChildBenefitConfig({
+    enabled:enabled?enabled.checked:false,
+    children:children?children.value:1,
+    mode:mode?mode.value:'split'
+  });
+  if(S.numParents!==2&&S.childBenefit.mode==='p2')S.childBenefit.mode='p1';
+  updateChildBenefitUI(false);
+  updateAllMonthTotals();renderSumTable();updateTracker();
+}
+function updateChildBenefitUI(writeValues=true){
+  S.childBenefit=normalizeChildBenefitConfig(S.childBenefit);
+  const enabled=document.getElementById('cbEnabled'),opts=document.getElementById('cbOptions'),children=document.getElementById('cbChildren'),mode=document.getElementById('cbMode'),prev=document.getElementById('cbPreview');
+  if(writeValues){
+    if(enabled)enabled.checked=!!S.childBenefit.enabled;
+    if(children)children.value=S.childBenefit.children;
+    if(mode)mode.value=S.childBenefit.mode;
+  }
+  if(opts)opts.classList.toggle('hidden',!S.childBenefit.enabled);
+  if(mode){
+    const p1=(ensurePersonState(1).name||'Förälder 1'),p2=(ensurePersonState(2).name||'Förälder 2');
+    const o1=mode.querySelector('option[value="p1"]'),o2=mode.querySelector('option[value="p2"]'),os=mode.querySelector('option[value="split"]');
+    if(os)os.textContent=S.numParents===2?'Båda föräldrarna delar':'Lägg på föräldern';
+    if(o1)o1.textContent=`${p1} får hela beloppet`;
+    if(o2){o2.textContent=`${p2} får hela beloppet`;o2.disabled=S.numParents!==2;o2.hidden=S.numParents!==2;}
+    if(S.numParents!==2&&mode.value==='p2'){mode.value='p1';S.childBenefit.mode='p1';}
+  }
+  if(prev){
+    const cfg=normalizeChildBenefitConfig(S.childBenefit),total=childBenefitHouseholdAmount(cfg.children),multi=childBenefitMultiAmount(cfg.children);
+    let txt=`🧒 Barnbidrag ${fmt(1250*cfg.children)} + flerbarnstillägg ${fmt(multi)} = <strong>${fmt(total)} per månad</strong>. `;
+    if(cfg.enabled){
+      if(cfg.mode==='split'&&S.numParents===2)txt+=`Läggs till med <strong>${fmt(total/2)}</strong> per förälder och månad.`;
+      else txt+=`Läggs till hos <strong>${cfg.mode==='p2'?ensurePersonState(2).name:ensurePersonState(1).name}</strong> med <strong>${fmt(total)}</strong> per månad.`;
+      if(S.birth)txt+=` Första månaden i planen som får barnbidrag är månaden efter barnets födelsedatum.`;
+    }else txt+='Aktivera rutan ovan för att lägga till beloppet i sammanställningen.';
+    prev.innerHTML=txt;
+  }
+}
+function fpPlusChildText(fpPay,childPay,p){
+  const total=fpPay+childPay;
+  const netto=net(fpPay,p)+childPay;
+  return `${fmt(total)} <span class="net-pay">netto ca ${fmt(netto)}</span>${childPay?`<span class="sum-pay">varav barnbidrag ${fmt(childPay)}</span>`:''}`;
+}
+function totalPlusChildText(fpGross,fpNet,childPay){
+  const total=fpGross+childPay;
+  const netto=fpNet+childPay;
+  return `${fmt(total)}<span class="net-pay">netto ${fmt(netto)}</span>${childPay?`<span class="sum-pay">varav barnbidrag ${fmt(childPay)}</span>`:''}`;
+}
+
+// Wrapper: namn/antal föräldrar påverkar barnbidragsvalen.
+const updateParentNameBeforeChildBenefit=updateParentName;
+updateParentName=function(p){updateParentNameBeforeChildBenefit(p);updateChildBenefitUI(true);};
+const selectParentsBeforeChildBenefit=selectParents;
+selectParents=function(n){selectParentsBeforeChildBenefit(n);updateChildBenefitUI(true);};
+const goStepBeforeChildBenefit=goStep;
+goStep=function(n){goStepBeforeChildBenefit(n);if(n===3)updateChildBenefitUI(true);};
+
+// Månadskort inklusive barnbidrag/flerbarnstillägg.
+const updateMonthTotalsBeforeChildBenefit=updateMonthTotals;
+updateMonthTotals=function(yr,mo){
+  const mk=`${yr}-${mo}`,el=document.getElementById('mtot-'+mk);if(!el){updateMonthTotalsBeforeChildBenefit(yr,mo);return;}
+  const st=getStatsGeneric(yr,mo),cb=childBenefitByParentForMonth(yr,mo);let h='',grossTot=0,netTot=0,daysTot=0,cbTot=0;
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p),r=dayRate(ps.sgi),sgi=st[p]?.sgi||0,low=st[p]?.low||0,fp=sgi*r+low*LOW_DAY,child=cb[p]||0;
+    grossTot+=fp+child;netTot+=net(fp,p)+child;daysTot+=sgi+low;cbTot+=child;
+    h+=`<div class="p-total-card p${p}-card"><div class="p-total-name">${ps.name}</div><div class="p-total-main">${fmt(fp+child)}</div><div class="p-total-net">Netto ca ${fmt(net(fp,p)+child)}</div><div class="p-total-sub">${sgi+low} dagar (${sgi} SGI + ${low} låg)${child?` · barnbidrag ${fmt(child)}`:''}</div></div>`;
+  }
+  h+=`<div class="p-total-grand"><div class="p-total-name">Totalt</div><div class="p-total-main">${fmt(grossTot)}</div><div class="p-total-net">Netto ca ${fmt(netTot)}</div><div class="p-total-sub">${daysTot} dagar${cbTot?` · barnbidrag ${fmt(cbTot)}`:''}</div></div>`;
+  el.innerHTML=h;const mb=document.getElementById('mbar-'+mk);if(mb)mb.textContent=`${daysTot} dagar${cbTot?` + barnbidrag`:''}`;
+};
+
+// Sammanställning inklusive barnbidrag/flerbarnstillägg.
+renderSumTable=function(){
+  const table=document.querySelector('.sum-table'),tb=document.getElementById('sumBody');if(!table||!tb)return;
+  const thead=table.querySelector('thead');let head='<tr><th>Månad</th>';for(const p of activeParents()){const name=ensurePersonState(p).name;head+=`<th style="text-align:right">${name} SGI</th><th style="text-align:right">${name} Låg</th><th style="text-align:right">${name} Ers. inkl. barnbidrag</th>`;}head+='<th style="text-align:right">Totalt inkl. barnbidrag</th></tr>';thead.innerHTML=head;tb.innerHTML='';
+  if(!S.calStart||!S.calEnd)return;
+  let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);const tot={};for(const p of activeParents())tot[p]={sgi:0,low:0,fp:0,child:0};
+  while(c<=e){
+    const yr=c.getFullYear(),mo=c.getMonth(),st=getStatsGeneric(yr,mo),cb=childBenefitByParentForMonth(yr,mo);let monthDays=0,gross=0,netto=0,childTotal=0,cells='';
+    for(const p of activeParents()){
+      const ps=ensurePersonState(p),r=dayRate(ps.sgi),sgi=st[p]?.sgi||0,low=st[p]?.low||0,fp=sgi*r+low*LOW_DAY,child=cb[p]||0;
+      monthDays+=sgi+low;gross+=fp+child;netto+=net(fp,p)+child;childTotal+=child;tot[p].sgi+=sgi;tot[p].low+=low;tot[p].fp+=fp;tot[p].child+=child;
+      cells+=`<td class="num">${dayWithPay(sgi,r,p)}</td><td class="num">${dayWithPay(low,LOW_DAY,p)}</td><td class="num">${fpPlusChildText(fp,child,p)}</td>`;
+    }
+    if(monthDays>0||childTotal>0){const mn=c.toLocaleString('sv-SE',{month:'long',year:'numeric'});const tr=document.createElement('tr');tr.innerHTML=`<td>${mn.charAt(0).toUpperCase()+mn.slice(1)}</td>${cells}<td class="num">${totalPlusChildText(gross-childTotal,netto-childTotal,childTotal)}</td>`;tb.appendChild(tr);}
+    c.setMonth(c.getMonth()+1);
+  }
+  let cells='',gross=0,netto=0,childTotal=0;for(const p of activeParents()){const r=dayRate(ensurePersonState(p).sgi),fp=tot[p].fp,child=tot[p].child;gross+=fp+child;netto+=net(fp,p)+child;childTotal+=child;cells+=`<td class="num">${dayWithPay(tot[p].sgi,r,p)}</td><td class="num">${dayWithPay(tot[p].low,LOW_DAY,p)}</td><td class="num">${fpPlusChildText(fp,child,p)}</td>`;}const tr=document.createElement('tr');tr.className='total-row';tr.innerHTML=`<td>TOTALT</td>${cells}<td class="num">${totalPlusChildText(gross-childTotal,netto-childTotal,childTotal)}</td>`;tb.appendChild(tr);
+};
+
+// Progress och fast sammanställning inklusive barnbidrag.
+renderProgress=function(){
+  const totals={};for(const p of activeParents())totals[p]={sgi:0,low:0};
+  for(const row of Object.values(S.days)){for(const p of activeParents()){if(row['p'+p]==='sgi')totals[p].sgi++;else if(row['p'+p]==='low')totals[p].low++;}}
+  let childMonths=0;if(S.calStart&&S.calEnd){let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);while(c<=e){if(childBenefitMonthIsActive(c.getFullYear(),c.getMonth()))childMonths++;c.setMonth(c.getMonth()+1);}}
+  let h='';for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),u=totals[p].sgi+totals[p].low,mx=(ps.sgiDays||0)+(ps.lowDays||0),fp=totals[p].sgi*r+totals[p].low*LOW_DAY;let child=0;if(S.calStart&&S.calEnd){let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);while(c<=e){child+=childBenefitByParentForMonth(c.getFullYear(),c.getMonth())[p]||0;c.setMonth(c.getMonth()+1);}}h+=`<div class="progress-wrap"><div class="progress-label"><span>${ps.name}: ${u}/${mx} dagar · ${fmt(fp+child)} totalt · netto ca ${fmt(net(fp,p)+child)}${child?` · barnbidrag ${fmt(child)}`:''}</span><span>${mx?Math.round(u/mx*100):0}%</span></div><div class="progress-bar"><div class="progress-fill fill-p${p>2?2:p}" style="width:${mx?Math.min(100,u/mx*100):0}%"></div></div></div>`;}
+  const el=document.getElementById('totalsBars');if(el)el.innerHTML=h;
+};
+updateTracker=function(){
+  const inner=document.getElementById('trackerInner');if(!inner)return;const counts={};for(const p of activeParents())counts[p]={sgi:0,low:0};for(const row of Object.values(S.days)){for(const p of activeParents()){if(row['p'+p]==='sgi')counts[p].sgi++;else if(row['p'+p]==='low')counts[p].low++;}}
+  const childTotals={};for(const p of activeParents())childTotals[p]=0;if(S.calStart&&S.calEnd){let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);while(c<=e){const by=childBenefitByParentForMonth(c.getFullYear(),c.getMonth());for(const p of activeParents())childTotals[p]+=by[p]||0;c.setMonth(c.getMonth()+1);}}
+  let html='<div class="tracker-title">Fast sammanställning</div>';
+  for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),remS=Math.max(0,(ps.sgiDays||0)-counts[p].sgi),remL=Math.max(0,(ps.lowDays||0)-counts[p].low),u=counts[p].sgi+counts[p].low,max=(ps.sgiDays||0)+(ps.lowDays||0),fp=counts[p].sgi*r+counts[p].low*LOW_DAY,child=childTotals[p]||0;html+=`<div class="tracker-parent"><span class="t-name">${PERSON_ICONS[p]||'👤'} ${ps.name}</span><div class="t-chip tot">Använt: ${u}/${max} dagar</div><div class="t-chip sgi${p}"><span class="dot7 d-sgi${p}"></span>SGI: ${counts[p].sgi} uttag · ${remS} kvar</div><div class="t-chip low${p}"><span class="dot7 d-low${p}"></span>Låg: ${counts[p].low} uttag · ${remL} kvar</div><div class="t-chip tot">Summa: ${fmt(fp+child)} <small>/ netto ${fmt(net(fp,p)+child)}${child?` · barnbidrag ${fmt(child)}`:''}</small></div></div>`;}
+  inner.innerHTML=html;
+};
+
+// Synka bygg/spara/ladda/starta om.
+const buildCalendarBeforeChildBenefit=buildCalendar;
+buildCalendar=function(){updateChildBenefitFromInputs();buildCalendarBeforeChildBenefit();updateAllMonthTotals();renderSumTable();updateTracker();};
+const buildCurrentPlanPayloadBeforeChildBenefit=buildCurrentPlanPayloadForScenario;
+buildCurrentPlanPayloadForScenario=function(){updateChildBenefitFromInputs();const payload=buildCurrentPlanPayloadBeforeChildBenefit();if(payload){payload.version=15;payload.fv=payload.fv||{};payload.state=payload.state||{};payload.fv.childBenefit={...S.childBenefit};payload.state.childBenefit={...S.childBenefit};}return payload;};
+const applyPlanBeforeChildBenefit=applyPlan;
+applyPlan=function(data){
+  const cfg=(data&&data.state&&data.state.childBenefit)||(data&&data.fv&&data.fv.childBenefit)||null;
+  S.childBenefit=normalizeChildBenefitConfig(cfg||{enabled:false,children:1,mode:'split'});
+  applyPlanBeforeChildBenefit(data);
+  S.childBenefit=normalizeChildBenefitConfig(cfg||{enabled:false,children:1,mode:'split'});
+  updateChildBenefitUI(true);updateAllMonthTotals();renderSumTable();updateTracker();
+};
+const startOverBeforeChildBenefit=startOverPlanning;
+startOverPlanning=function(){startOverBeforeChildBenefit();S.childBenefit={enabled:false,children:1,mode:'split'};updateChildBenefitUI(true);};
 
 // ═══════════════ INIT ════════════════════
 updateDaysGrid();
