@@ -1,0 +1,2883 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Föräldrapenning – Planeringsverktyg</title>
+<style>
+:root{
+  --r50:#fff1f4;--r100:#ffe0e8;--r200:#ffc2d0;--r300:#ff93ae;--r400:#ff5a87;
+  --r500:#f72f66;--r600:#e01050;--r700:#bc0a42;
+  --p100:#f3e8ff;--p300:#d8b4fe;--p400:#c084fc;--p500:#a855f7;--p700:#7c3aed;
+  --g50:#f9f9fb;--g100:#f0f0f4;--g200:#e2e2ea;--g300:#c8c8d8;
+  --g500:#7a7a9a;--g700:#3a3a5c;--g900:#1a1a2e;
+  --grn100:#dcfce7;--grn500:#22c55e;--grn700:#15803d;
+  --amb100:#fef3c7;--amb500:#f59e0b;--amb700:#b45309;
+  --blu100:#dbeafe;--blu500:#3b82f6;
+  --fd:'Georgia',serif;--fb:'Segoe UI',system-ui,sans-serif;
+  --sh-sm:0 1px 3px rgba(26,26,46,.08);--sh-md:0 4px 16px rgba(26,26,46,.10);--sh-lg:0 8px 32px rgba(26,26,46,.13);
+  --rad:14px;--rad-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:linear-gradient(135deg,#fff1f4 0%,#ffeef5 40%,#f8f0ff 100%);min-height:100vh;color:var(--g900);padding-bottom:80px}
+
+body::before{content:'👶  🍼  🧸  🌷';position:fixed;right:18px;bottom:18px;font-size:1.25rem;opacity:.08;letter-spacing:10px;pointer-events:none;z-index:0}
+header, .sticky-tracker, .container, .cal-container, footer{position:relative;z-index:1}
+.baby-sprinkle{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.72);box-shadow:var(--sh-sm);border:1px solid rgba(255,194,208,.9);font-size:1.15rem}
+.baby-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:6px 0 2px}
+.hdr-babies{display:flex;justify-content:space-between;align-items:flex-start;position:absolute;left:18px;right:18px;top:12px;pointer-events:none}
+.hdr-babies .cluster{display:flex;gap:8px}
+.hero-subnote{display:inline-block;margin-top:4px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.65);color:var(--r700);font-size:.78rem;font-weight:700;border:1px solid var(--r100)}
+.setup-panel,.totals-section,.month-block{overflow:visible}
+.setup-panel::after{content:'🍼';position:absolute;right:18px;top:16px;font-size:1.55rem;opacity:.28}
+.totals-section::before{content:'👶';position:absolute;right:16px;top:16px;font-size:1.45rem;opacity:.22}
+.month-hdr-top h3::before{content:'👶 ';font-size:.95em}
+.days-summary h3::after,.totals-section h2::after{content:'  🧸';font-size:.92em}
+.print-love-banner{display:none}
+.cute-note{margin-top:10px;text-align:center;font-size:.78rem;color:var(--r700);font-weight:700}
+.footer-babies{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.footer-babies span{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.8);border:1px solid var(--r100)}
+@media(max-width:700px){.hdr-babies{display:none}.hero-subnote{display:block;margin-left:auto;margin-right:auto;max-width:290px}}
+
+/* ── HEADER ─────────────────────────────── */
+header{background:linear-gradient(120deg,#fff0f3,#ffe4ec 60%,#f8e6ff);border-bottom:2px solid var(--r200);padding:22px 24px 18px;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-30px;right:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(247,47,102,.08),transparent 70%);border-radius:50%}
+header::after{content:'';position:absolute;bottom:-20px;left:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(168,85,247,.07),transparent 70%);border-radius:50%}
+.hdr-icon{font-size:2.4rem;display:block;margin-bottom:6px}
+header h1{font-family:var(--fd);font-size:1.9rem;color:var(--r700);letter-spacing:-.5px;margin-bottom:4px}
+header p{color:var(--g500);font-size:.9rem;margin-bottom:12px}
+.hdr-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ── STICKY TRACKER ─────────────────────── */
+.sticky-tracker{position:sticky;top:0;z-index:700;background:linear-gradient(120deg,#fff0f3,#ffe8f4 60%,#f5edff);border-bottom:2px solid var(--r200);box-shadow:0 4px 16px rgba(247,47,102,.12);padding:7px 16px;display:none}
+.sticky-tracker.visible{display:block}
+.tracker-inner{max-width:1600px;margin:0 auto;display:flex;flex-direction:column;align-items:stretch;gap:5px}
+.tracker-title{font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.9px;color:var(--r700);line-height:1}
+.tracker-parent{display:grid;grid-template-columns:160px 175px 245px 235px minmax(430px,1fr);align-items:center;gap:6px 8px;width:100%;min-width:1280px}
+.tracker-sep{display:none}
+.t-name{font-size:.76rem;font-weight:900;color:var(--g700);white-space:nowrap}
+.t-chip{display:flex;align-items:center;justify-content:center;gap:3px;background:white;border-radius:16px;padding:3px 8px;font-size:.72rem;font-weight:700;border:1.5px solid var(--r100);white-space:nowrap;min-height:22px;width:100%}
+.tracker-parent .t-chip:last-child{justify-content:flex-start;white-space:normal;line-height:1.25;padding:4px 12px;min-height:28px}
+.sticky-tracker{overflow-x:auto}
+.t-chip small{font-size:.68rem;color:var(--g500);font-weight:700}
+.t-chip.sgi1{border-color:var(--r300);color:var(--r700)}.t-chip.low1{border-color:#fbcfe8;color:#be185d}
+.t-chip.sgi2{border-color:var(--p300);color:var(--p700)}.t-chip.low2{border-color:#ede9fe;color:#6d28d9}
+.t-chip.tot{background:linear-gradient(90deg,var(--r50),#fdf4ff);border-color:var(--r200);color:var(--r700)}
+.dot7{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.d-sgi1{background:var(--r500)}.d-low1{background:#be185d}
+.d-sgi2{background:var(--p700)}.d-low2{background:#6d28d9}
+@media(max-width:820px){.tracker-parent{grid-template-columns:1fr 1fr;min-width:0}.t-name{grid-column:1/-1}.t-chip{justify-content:flex-start}.tracker-parent .t-chip:last-child{grid-column:1/-1}}
+
+/* ── LAYOUT ─────────────────────────────── */
+.container{max-width:1280px;margin:0 auto;padding:0 14px}
+
+/* ── SETUP PANEL ────────────────────────── */
+.setup-panel{background:white;border-radius:var(--rad);padding:24px 28px;margin:20px auto;max-width:920px;box-shadow:var(--sh-md);border:1.5px solid var(--r100)}
+.setup-panel h2{font-family:var(--fd);font-size:1.2rem;color:var(--r700);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.setup-panel h2::before{content:'';display:inline-block;width:4px;height:18px;background:var(--r400);border-radius:2px}
+.step-ind{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.step-dot{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--g500);background:var(--g100);transition:all .2s}
+.step-dot.active{background:var(--r100);color:var(--r700)}
+.step-dot.done{background:var(--r500);color:white}
+.step-num{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+
+/* ── FORMS ──────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:.79rem;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{padding:9px 13px;border:1.5px solid var(--g200);border-radius:var(--rad-sm);font-size:.93rem;font-family:var(--fb);color:var(--g900);background:var(--g50);transition:border-color .2s,box-shadow .2s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--r400);box-shadow:0 0 0 3px rgba(247,47,102,.08);background:white}
+.form-hint{font-size:.75rem;color:var(--g500);line-height:1.4}
+.toggle-group{display:flex;gap:7px;flex-wrap:wrap}
+.toggle-btn{padding:9px 18px;border:2px solid var(--r200);border-radius:30px;background:white;font-size:.9rem;font-weight:600;color:var(--r600);cursor:pointer;transition:all .18s}
+.toggle-btn:hover{background:var(--r50)}
+.toggle-btn.selected{background:var(--r500);border-color:var(--r500);color:white;box-shadow:0 2px 8px rgba(247,47,102,.22)}
+.check-row{display:flex;align-items:center;gap:7px;margin-top:8px}
+.check-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--r500);cursor:pointer}
+.check-row label{font-size:.83rem;cursor:pointer;color:var(--g700);font-weight:500}
+
+/* ── PARENT CARDS ───────────────────────── */
+.parent-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+@media(max-width:600px){.parent-cards{grid-template-columns:1fr}}
+.parent-card{background:white;border-radius:var(--rad);padding:18px;border:2px solid var(--r100);box-shadow:var(--sh-sm);position:relative;overflow:hidden}
+.parent-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.parent-card.p1::before{background:linear-gradient(90deg,var(--r400),var(--r300))}
+.parent-card.p2::before{background:linear-gradient(90deg,var(--p500),var(--p400))}
+.parent-card h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
+.parent-card.p1 h3{color:var(--r700)}.parent-card.p2 h3{color:var(--p700)}
+
+/* ── MISC PANELS ────────────────────────── */
+.days-summary{background:linear-gradient(135deg,#fff6f8,#fff0fc);border:1.5px solid var(--r200);border-radius:var(--rad);padding:18px 20px;margin-top:16px}
+.days-summary h3{font-family:var(--fd);font-size:1.05rem;color:var(--r700);margin-bottom:12px}
+.days-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+.days-chip{background:white;border-radius:var(--rad-sm);padding:10px 14px;border:1px solid var(--r100);box-shadow:var(--sh-sm)}
+.days-chip .chip-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g500);margin-bottom:3px}
+.days-chip .chip-val{font-size:1.2rem;font-weight:700;color:var(--r600)}
+.days-chip .chip-sub{font-size:.72rem;color:var(--g500)}
+.xfer-section{background:white;border:1.5px solid var(--r100);border-radius:var(--rad);padding:18px;margin-top:14px}
+.xfer-section h3{font-weight:700;font-size:.93rem;color:var(--g700);margin-bottom:10px}
+.info-box{background:var(--blu100);border-left:4px solid var(--blu500);border-radius:var(--rad-sm);padding:10px 14px;font-size:.82rem;color:#1e40af;line-height:1.5;margin-top:10px}
+.section-sep{height:1.5px;background:linear-gradient(90deg,transparent,var(--r200),transparent);margin:18px 0}
+
+
+/* ── SCENARIO PANEL ─────────────────────── */
+.scenario-panel{background:linear-gradient(135deg,#fff8fb,#f7f0ff);border:1.5px solid var(--r200);border-radius:var(--rad);padding:14px 16px;margin:0 0 18px;box-shadow:var(--sh-sm);position:relative;overflow:hidden}
+.scenario-panel::after{content:'🌈';position:absolute;right:14px;top:10px;font-size:1.3rem;opacity:.22}
+.scenario-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.scenario-head h2{margin-bottom:0;font-size:1.03rem}
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.scenario-actions{margin-top:12px;gap:8px}
+.scenario-actions .btn{font-size:.78rem;padding:7px 13px}
+.scenario-status{margin-top:9px;font-size:.78rem;color:var(--g500);line-height:1.4;background:rgba(255,255,255,.62);border:1px solid var(--r100);border-radius:10px;padding:8px 10px}
+@media(max-width:760px){.scenario-grid{grid-template-columns:1fr}.scenario-actions .btn{width:100%;justify-content:center}}
+
+/* ── INLINE SCENARIO LIST ───────────────── */
+.scenario-inline-panel{margin-top:16px;background:linear-gradient(135deg,#fff8fb,#f7f0ff);border:1.5px solid var(--r200);border-radius:var(--rad);padding:14px 16px;box-shadow:var(--sh-sm);position:relative;overflow:hidden}
+.scenario-inline-panel::after{content:'🌈';position:absolute;right:14px;top:10px;font-size:1.25rem;opacity:.18}
+.scenario-inline-panel .scenario-head h3{font-family:var(--fd);font-size:1.05rem;color:var(--r700);margin:0}
+.scenario-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.scenario-row{display:grid;grid-template-columns:1fr 120px 100px;gap:8px;align-items:center;background:rgba(255,255,255,.72);border:1px solid var(--r100);border-radius:12px;padding:8px 10px}
+.scenario-row input{width:100%;padding:8px 10px;border:1.5px solid var(--r200);border-radius:10px;background:white;font-size:.86rem;font-weight:700;color:var(--g900)}
+.scenario-row .sc-meta{font-size:.72rem;color:var(--g500);font-weight:700;white-space:nowrap;text-align:center}
+.scenario-row .sc-actions{display:flex;gap:6px;justify-content:flex-end}
+.scenario-row .mini-btn{border:none;border-radius:999px;padding:6px 9px;font-size:.74rem;font-weight:800;cursor:pointer;background:white;color:var(--r700);border:1.5px solid var(--r200)}
+.scenario-row .mini-btn:hover{background:var(--r50)}
+.scenario-row .mini-btn.del{color:#b91c1c;border-color:#fecaca}
+.scenario-empty{background:rgba(255,255,255,.64);border:1px dashed var(--r200);border-radius:12px;padding:10px 12px;color:var(--g500);font-size:.82rem;font-weight:700;text-align:center}
+@media(max-width:760px){.scenario-row{grid-template-columns:1fr}.scenario-row .sc-meta{text-align:left}.scenario-row .sc-actions{justify-content:flex-start}.scenario-inline-panel .btn{width:100%;justify-content:center}}
+
+
+/* ── BUTTONS ────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 24px;border-radius:30px;font-size:.92rem;font-weight:700;cursor:pointer;border:none;transition:all .18s;font-family:var(--fb)}
+.btn-primary{background:linear-gradient(120deg,var(--r500),var(--r600));color:white;box-shadow:0 4px 14px rgba(247,47,102,.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(247,47,102,.35)}
+.btn-secondary{background:white;color:var(--r600);border:2px solid var(--r200)}
+.btn-secondary:hover{background:var(--r50)}
+.btn-warn{background:linear-gradient(120deg,#f59e0b,#d97706);color:white;box-shadow:0 4px 14px rgba(245,158,11,.25)}
+.btn-warn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,158,11,.32)}
+.btn-danger{background:linear-gradient(120deg,#ef4444,#dc2626);color:white;box-shadow:0 4px 14px rgba(239,68,68,.25)}
+.btn-danger:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(239,68,68,.32)}
+.btn-green{background:linear-gradient(120deg,#15803d,#16a34a);color:white;box-shadow:0 4px 14px rgba(21,128,61,.25)}
+.btn-green:hover{transform:translateY(-1px)}
+.btn-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* Snabbare filval: använd label/for i stället för JavaScript-click på display:none-input */
+.file-input-fast{position:fixed;left:-10000px;top:auto;width:1px;height:1px;opacity:.01;overflow:hidden}
+.file-label-btn{cursor:pointer;text-decoration:none;user-select:none}
+.file-label-btn:focus-within{outline:2px solid var(--r400);outline-offset:2px}
+
+/* ══════════ CALENDAR ═══════════════════════ */
+.cal-container{max-width:1280px;margin:0 auto;padding:0 14px 40px}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.cal-hdr h2{font-family:var(--fd);font-size:1.4rem;color:var(--r700)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.74rem;font-weight:600;color:var(--g700)}
+.leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+/* MONTH BLOCK */
+.month-block{background:white;border-radius:var(--rad);margin-bottom:22px;box-shadow:var(--sh-md);overflow:hidden;border:1.5px solid var(--r100)}
+.month-hdr{background:linear-gradient(120deg,#fff0f4,#fce8f4);padding:14px 20px 12px;border-bottom:1.5px solid var(--r100)}
+.month-hdr-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.month-hdr-top h3{font-family:var(--fd);font-size:1.15rem;color:var(--r700);text-transform:capitalize}
+.month-p-totals{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.p-total-card{background:white;border-radius:10px;padding:9px 15px;border:1.5px solid var(--r100);display:flex;flex-direction:column;gap:2px;min-width:150px}
+.p-total-card.p1-card{border-left:4px solid var(--r400)}
+.p-total-card.p2-card{border-left:4px solid var(--p500)}
+.p-total-name{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--g500)}
+.p-total-main{font-size:1.05rem;font-weight:800}
+.p1-card .p-total-main{color:var(--r600)}.p2-card .p-total-main{color:var(--p700)}
+.p-total-sub{font-size:.72rem;color:var(--g500)}
+.p-total-grand{background:linear-gradient(90deg,#fff0f4,#f5edff);border-radius:10px;padding:9px 15px;border:1.5px solid var(--r100);display:flex;flex-direction:column;gap:2px}
+.p-total-grand .p-total-name{color:var(--g500)}
+.p-total-grand .p-total-main{color:var(--r700);font-size:1rem}
+.sgi-protect-toggle{display:inline-flex;align-items:center;gap:6px;font-size:.79rem;font-weight:600;color:var(--grn700);cursor:pointer;padding:6px 12px;border-radius:20px;border:1.5px solid #86efac;background:var(--grn100);transition:all .15s;user-select:none}
+.sgi-protect-toggle:hover{background:#dcfce7}
+.sgi-protect-toggle.active{background:var(--grn500);color:white;border-color:var(--grn500)}
+.month-footer{padding:10px 20px;background:linear-gradient(90deg,#fff8fa,#fdf4ff);border-top:1.5px solid var(--r100);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* WEEK HEADER */
+.week-labels{display:grid;grid-template-columns:44px repeat(7,1fr);background:var(--g50);border-bottom:1px solid var(--g100)}
+.week-label{text-align:center;padding:7px 0;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g500)}
+.week-label.wn{color:var(--r700);background:var(--r50)}
+.week-num-cell{background:var(--r50);min-height:120px;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;font-size:.72rem;font-weight:800;color:var(--r700);border-right:1px solid var(--r100)}
+.week-num-cell.out-range{background:#fafafa;color:var(--g300)}
+.week-label.we{color:var(--r400)}
+
+/* ══════════ DAY CELLS ═══════════════════════ */
+.cal-grid{display:grid;grid-template-columns:44px repeat(7,1fr);gap:1px;background:var(--g100);padding:1px}
+
+.day-cell{background:white;min-height:120px;padding:5px 5px 4px;display:flex;flex-direction:column;gap:0}
+.day-cell.out-range{background:#fafafa;min-height:120px}
+.day-cell.we-day{background:#fffbfc}
+.day-cell.out-range.we-day{background:#fafafa}
+
+/* Date number row */
+.day-num-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.day-num{font-size:.8rem;font-weight:700;color:var(--g700);line-height:1}
+.day-cell.we-day .day-num{color:var(--r400)}
+.day-cell.holiday-cell .day-num{color:var(--r600)}
+.day-num-inner{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%}
+.today-cell .day-num-inner{background:var(--r500);color:white;font-size:.72rem}
+.hol-name{font-size:.56rem;color:var(--r500);font-weight:600;line-height:1;max-width:48px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+
+/* Period top stripe – 3px band showing who is active */
+.period-stripe{height:3px;margin:0 -1px 3px;border-radius:0}
+.ps-p1{background:var(--r400)}
+.ps-p2{background:var(--p500)}
+.ps-both{background:linear-gradient(90deg,var(--r400) 50%,var(--p500) 50%)}
+
+/* ── PARENT ROWS ──── */
+.p-rows{display:flex;flex-direction:column;gap:3px;flex:1}
+
+.p-row{
+  display:flex;align-items:center;gap:3px;
+  border-radius:6px;padding:3px 4px 3px 5px;
+  border-left:3px solid transparent;
+  background:transparent;
+  transition:background .1s;
+}
+.p-row:hover{background:rgba(0,0,0,.03)}
+.p-row.pr1{border-left-color:var(--r300)}
+.p-row.pr2{border-left-color:var(--p400)}
+
+/* Status pill – replaces old mini-check */
+.p-pill{
+  flex-shrink:0;
+  font-size:.62rem;font-weight:800;
+  padding:1px 6px;border-radius:10px;
+  border:1.5px solid transparent;
+  white-space:nowrap;min-width:32px;text-align:center;
+}
+.pill-off{background:var(--g100);color:var(--g500);border-color:var(--g200)}
+.pill-sgi1{background:var(--r500);color:white}
+.pill-low1{background:#be185d;color:white}
+.pill-sgi2{background:var(--p700);color:white}
+.pill-low2{background:#6d28d9;color:white}
+
+/* Parent name label */
+.p-name{font-size:.63rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr1 .p-name{color:var(--r700)}
+.pr2 .p-name{color:var(--p700)}
+
+/* Small SGI / Låg / – buttons */
+.day-btns{display:flex;gap:2px;flex-shrink:0}
+.db{font-size:.57rem;font-weight:800;padding:1px 4px;border-radius:4px;border:1px solid var(--g200);background:var(--g50);cursor:pointer;color:var(--g600);transition:all .1s;line-height:1.3}
+.db:hover{background:var(--g200)}
+.db.active-sgi1{background:var(--r500);border-color:var(--r500);color:white}
+.db.active-low1{background:#be185d;border-color:#be185d;color:white}
+.db.active-sgi2{background:var(--p700);border-color:var(--p700);color:white}
+.db.active-low2{background:#6d28d9;border-color:#6d28d9;color:white}
+.db.active-off{background:var(--g400);border-color:var(--g400);color:white}
+
+/* ── TOTALS SECTION ─────────────────────── */
+.totals-section{background:white;border-radius:var(--rad);padding:24px;margin-top:24px;box-shadow:var(--sh-md);border:2px solid var(--r100)}
+.totals-section h2{font-family:var(--fd);font-size:1.3rem;color:var(--r700);margin-bottom:18px}
+.progress-wrap{margin-bottom:12px}
+.progress-label{display:flex;justify-content:space-between;font-size:.79rem;font-weight:600;margin-bottom:4px;color:var(--g700)}
+.progress-bar{height:8px;background:var(--g100);border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;border-radius:5px;transition:width .4s ease}
+.fill-p1{background:linear-gradient(90deg,var(--r400),var(--r500))}
+.fill-p2{background:linear-gradient(90deg,var(--p500),var(--p700))}
+
+.sum-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:.84rem}
+.sum-table th{background:var(--r50);color:var(--r700);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;text-align:left;border-bottom:2px solid var(--r200)}
+.sum-table td{padding:8px 12px;border-bottom:1px solid var(--g100);color:var(--g700)}
+.sum-table tr:last-child td{border-bottom:none}
+.sum-table tr:hover td{background:var(--r50)}
+.sum-table .num{text-align:right;font-weight:600;color:var(--r600);white-space:nowrap}
+.sum-table .sum-pay{font-weight:500;color:var(--g500);font-size:.78em}
+.sum-table .net-pay{display:block;font-weight:600;color:var(--grn700);font-size:.78em;margin-top:1px}
+.p-total-net{font-size:.72rem;color:var(--grn700);font-weight:700}
+.tax-note{background:#f0fdf4;border-left:4px solid var(--grn500);border-radius:var(--rad-sm);padding:10px 14px;font-size:.82rem;color:#166534;line-height:1.45;margin-top:12px}
+.sum-table .total-row td{font-weight:700;background:var(--r50);color:var(--r700)}
+
+/* ── EXTRA PERSONS / REMAINING DAYS ───── */
+.extra-people-panel{margin-top:16px;padding:14px;border:1.5px dashed var(--p300);border-radius:var(--rad);background:linear-gradient(135deg,#fff8fb,#f7f0ff)}
+.extra-people-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.extra-people-head h3{font-size:.95rem;color:var(--p700);margin:0}
+.remaining-panel{background:linear-gradient(135deg,#fffdfd,#fff7fb);border:1.5px solid var(--r200);border-radius:var(--rad);padding:16px 18px;margin-top:14px}
+.remaining-panel h3{font-size:.98rem;color:var(--r700);margin-bottom:8px}
+.remaining-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.remaining-card{background:white;border:1px solid var(--r100);border-radius:12px;padding:12px;box-shadow:var(--sh-sm)}
+.remaining-card h4{font-size:.84rem;margin-bottom:8px;color:var(--g700)}
+.remaining-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.remaining-inputs input{width:100%;padding:8px 10px;border:1.5px solid var(--g200);border-radius:8px;background:var(--g50)}
+.parent-card.p3::before{background:linear-gradient(90deg,#38bdf8,#60a5fa)}
+.parent-card.p4::before{background:linear-gradient(90deg,#34d399,#22c55e)}
+.parent-card.p5::before{background:linear-gradient(90deg,#fbbf24,#f97316)}
+.parent-card.p6::before{background:linear-gradient(90deg,#a3e635,#84cc16)}
+.parent-card.p3 h3{color:#0369a1}.parent-card.p4 h3{color:#047857}.parent-card.p5 h3{color:#b45309}.parent-card.p6 h3{color:#4d7c0f}
+.p-row.pr3{border-left-color:#60a5fa}.p-row.pr4{border-left-color:#34d399}.p-row.pr5{border-left-color:#f97316}.p-row.pr6{border-left-color:#84cc16}
+.pr3 .p-name{color:#0369a1}.pr4 .p-name{color:#047857}.pr5 .p-name{color:#b45309}.pr6 .p-name{color:#4d7c0f}
+.pill-sgi3{background:#0284c7;color:white}.pill-low3{background:#075985;color:white}
+.pill-sgi4{background:#059669;color:white}.pill-low4{background:#065f46;color:white}
+.pill-sgi5{background:#ea580c;color:white}.pill-low5{background:#9a3412;color:white}
+.pill-sgi6{background:#65a30d;color:white}.pill-low6{background:#3f6212;color:white}
+.db.active-sgi3{background:#0284c7;border-color:#0284c7;color:white}.db.active-low3{background:#075985;border-color:#075985;color:white}
+.db.active-sgi4{background:#059669;border-color:#059669;color:white}.db.active-low4{background:#065f46;border-color:#065f46;color:white}
+.db.active-sgi5{background:#ea580c;border-color:#ea580c;color:white}.db.active-low5{background:#9a3412;border-color:#9a3412;color:white}
+.db.active-sgi6{background:#65a30d;border-color:#65a30d;color:white}.db.active-low6{background:#3f6212;border-color:#3f6212;color:white}
+.t-chip.sgi3{border-color:#7dd3fc;color:#0369a1}.t-chip.low3{border-color:#bae6fd;color:#075985}
+.t-chip.sgi4{border-color:#6ee7b7;color:#047857}.t-chip.low4{border-color:#a7f3d0;color:#065f46}
+.t-chip.sgi5{border-color:#fdba74;color:#b45309}.t-chip.low5{border-color:#fed7aa;color:#9a3412}
+.t-chip.sgi6{border-color:#bef264;color:#4d7c0f}.t-chip.low6{border-color:#d9f99d;color:#3f6212}
+.d-sgi3{background:#0284c7}.d-low3{background:#075985}.d-sgi4{background:#059669}.d-low4{background:#065f46}.d-sgi5{background:#ea580c}.d-low5{background:#9a3412}.d-sgi6{background:#65a30d}.d-low6{background:#3f6212}
+
+.hidden{display:none!important}
+
+/* ══════════ PRINT ═════════════════════════ */
+@media print{
+  @page{size:auto;margin:10mm}
+  body{background:linear-gradient(180deg,#fffdfd,#fff8fb)!important;padding:0;font-size:9pt;color:#4b2640}
+  body::before{content:'';display:none}
+  .sticky-tracker,.setup-panel,.cal-hdr,.month-footer,
+  .totals-section,.btn,.btn-actions,.day-btns{display:none!important}
+  header{padding:12px 10px 10px;border:1px solid #f3bfd0;border-radius:12px;margin:0 0 10px;background:linear-gradient(135deg,#fff3f7,#fff8fd)!important}
+  header::before,header::after{display:none}
+  .hdr-babies{display:flex;position:static;justify-content:center;gap:10px;margin-bottom:6px}
+  .hdr-babies .cluster{display:flex;gap:6px}
+  .baby-sprinkle{width:24px;height:24px;font-size:.9rem;box-shadow:none;background:#fff;border-color:#f7d8e4}
+  .hdr-icon{font-size:1.4rem;margin-bottom:2px}
+  header h1{font-size:1.2rem;color:#a0104b}
+  header p{font-size:7pt;color:#7a5670;margin-bottom:6px}
+  .hero-subnote{display:inline-block;font-size:6.5pt;padding:3px 8px;background:#fff;border-color:#f3bfd0;color:#a0104b}
+  .cal-container{padding:0;max-width:100%}
+  .print-love-banner{display:block!important;text-align:center;margin:0 0 10px;padding:8px 10px;border:1px dashed #f0a7bf;border-radius:12px;background:linear-gradient(90deg,#fff6fa,#fffdfd,#f9f1ff);font-weight:800;color:#b01352;font-size:.95rem}
+  .month-block{break-inside:avoid;margin-bottom:12px;box-shadow:none;border:1px solid #f1c7d6;border-radius:12px;background:#fffdfd}
+  .month-hdr{padding:8px 12px 6px;background:linear-gradient(90deg,#fff1f6,#fff9fc)!important;border-bottom:1px solid #f4d0dd}
+  .month-hdr-top h3{font-size:.95rem;color:#bc0a42}
+  .month-p-totals{gap:6px}
+  .p-total-card,.p-total-grand{background:#fff;border-color:#f3d5e1}
+  .month-p-totals{gap:6px}
+  .p-total-card{padding:5px 10px;min-width:110px;border-radius:6px}
+  .p-total-main{font-size:.9rem}
+  .p-total-sub{font-size:.62rem}
+  .week-labels{background:#fff7fa}
+  .week-label{padding:4px 0;font-size:.6rem}
+  .week-num-cell{min-height:70px;font-size:.55rem;padding-top:5px;background:#fff2f7;color:#b01352}
+  .cal-grid{gap:0;background:#ccc;padding:0}
+  .day-cell{min-height:70px;padding:3px;border:none;gap:1px;background:#fff}
+  .day-cell.out-range{background:#f5f5f5}
+  .day-cell.we-day{background:#fff6fa}
+  .day-num{font-size:.7rem}
+  .day-num-inner{width:17px;height:17px}
+  .today-cell .day-num-inner{background:#f72f66;color:#fff}
+  .hol-name{font-size:.48rem;max-width:36px}
+  .period-stripe{height:2px;margin:0 0 2px}
+  .p-row{padding:1px 2px 1px 3px;gap:2px;border-radius:3px}
+  .p-pill{font-size:.52rem;padding:0 3px;min-width:24px}
+  .p-name{font-size:.54rem}
+  .p-rows{gap:2px}
+  footer{margin-top:10px;padding:8px 0 0!important;border-top:1px dashed #f0b5c9!important;color:#9a3f63!important}
+  .footer-babies{display:flex!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-babies">
+    <div class="cluster"><span class="baby-sprinkle">👶</span><span class="baby-sprinkle">🍼</span></div>
+    <div class="cluster"><span class="baby-sprinkle">🧸</span><span class="baby-sprinkle">🌷</span></div>
+  </div>
+  <span class="hdr-icon">🌸</span>
+  <h1>Föräldrapenning – Planeringsverktyg</h1>
+  <p>Ett verktyg för att planera och optimera din föräldraledighet</p>
+  <div class="hero-subnote">👶 Ett lite extra mysigt verktyg för nyblivna föräldrar</div>
+  <div class="baby-row" aria-hidden="true"><span class="baby-sprinkle">👶</span><span class="baby-sprinkle">🧸</span><span class="baby-sprinkle">🍼</span></div>
+  <div class="hdr-btns">
+    <label class="btn btn-secondary file-label-btn" style="font-size:.82rem;padding:7px 16px" for="loadInput">📂 Ladda planering</label>
+    <input type="file" id="loadInput" class="file-input-fast" accept=".fpplan,.fpscenarios,.json" onchange="loadPlan(event)">
+  </div>
+</header>
+
+<!-- STICKY TRACKER -->
+<div class="sticky-tracker" id="stickyTracker">
+  <div class="tracker-inner" id="trackerInner"></div>
+</div>
+
+<div class="container">
+<div class="setup-panel" id="setupPanel">
+
+  <div class="step-ind">
+    <div class="step-dot active" id="s1d"><span class="step-num">1</span>Föräldrar</div>
+    <div class="step-dot" id="s2d"><span class="step-num">2</span>Uppgifter</div>
+    <div class="step-dot" id="s3d"><span class="step-num">3</span>Dagar</div>
+    <div class="step-dot" id="s4d"><span class="step-num">4</span>Planera</div>
+  </div>
+  <div class="cute-note">🩷 Små gulliga detaljer för en varm och välkomnande planering 🧸</div>
+
+  <!-- STEP 1 -->
+  <div id="step1">
+    <h2>Hur många föräldrar planerar?</h2>
+    <div class="toggle-group">
+      <button class="toggle-btn" onclick="selectParents(1)">👤 En förälder</button>
+      <button class="toggle-btn" onclick="selectParents(2)">👥 Två föräldrar</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step2" class="hidden">
+    <h2>Grunduppgifter</h2>
+    <div class="form-grid">
+      <div class="form-group"><label>Barnets födelsedatum</label>
+        <input type="date" id="birthDate"></div>
+    </div>
+    <div class="section-sep"></div>
+    <div class="parent-cards">
+      <div class="parent-card p1">
+        <h3>🌸 Förälder 1</h3>
+        <div class="form-group"><label>Namn</label><input type="text" id="p1name" placeholder="T.ex. Mamma" oninput="updateParentName(1)"></div>
+        <div class="form-group" style="margin-top:10px"><label>SGI (kr/år)</label>
+          <input type="number" id="p1sgi" placeholder="T.ex. 420 000" min="0">
+          <span class="form-hint">Lämna tomt → 250 kr/dag (grundnivå)</span></div>
+        <div class="form-group" style="margin-top:10px"><label>Skattesats (%)</label>
+          <input type="text" id="p1tax" value="30" placeholder="T.ex. 32,38" oninput="updateTaxFromInputs()">
+          <span class="form-hint">Används för ungefärlig nettoersättning. Ange t.ex. kommunal skattesats eller egen preliminär skattesats.</span></div>
+        <div class="form-grid" style="margin-top:10px">
+          <div class="form-group"><label>Ledighetsstart</label><input type="date" id="p1start"></div>
+          <div class="form-group"><label>Ledighetsslutt</label><input type="date" id="p1end"></div>
+        </div>
+        <div class="check-row"><input type="checkbox" id="p1w240"><label for="p1w240">Arbetat 240+ dagar i följd</label></div>
+      </div>
+      <div class="parent-card p2" id="p2card">
+        <h3>💜 Förälder 2</h3>
+        <div class="form-group"><label>Namn</label><input type="text" id="p2name" placeholder="T.ex. Pappa" oninput="updateParentName(2)"></div>
+        <div class="form-group" style="margin-top:10px"><label>SGI (kr/år)</label>
+          <input type="number" id="p2sgi" placeholder="T.ex. 380 000" min="0">
+          <span class="form-hint">Lämna tomt → 250 kr/dag (grundnivå)</span></div>
+        <div class="form-group" style="margin-top:10px"><label>Skattesats (%)</label>
+          <input type="text" id="p2tax" value="30" placeholder="T.ex. 32,38" oninput="updateTaxFromInputs()">
+          <span class="form-hint">Används för ungefärlig nettoersättning. Ange t.ex. kommunal skattesats eller egen preliminär skattesats.</span></div>
+        <div class="form-grid" style="margin-top:10px">
+          <div class="form-group"><label>Ledighetsstart</label><input type="date" id="p2start"></div>
+          <div class="form-group"><label>Ledighetsslutt</label><input type="date" id="p2end"></div>
+        </div>
+        <div class="check-row"><input type="checkbox" id="p2w240"><label for="p2w240">Arbetat 240+ dagar i följd</label></div>
+      </div>
+    </div>
+    <div class="extra-people-panel" id="extraPeoplePanel">
+      <div class="extra-people-head">
+        <h3>👨‍👩‍👧 Ytterligare personer som delar på dagarna</h3>
+        <button type="button" class="btn btn-secondary" style="font-size:.8rem;padding:7px 14px" onclick="addExtraPerson()">➕ Lägg till person</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--g500);margin-bottom:10px">Grunden är fortfarande en eller två föräldrar. Lägg till extra personer om någon annan ska kunna ta ut överlåtna dagar. Ange kvarvarande dagar i nästa steg.</p>
+      <div class="parent-cards" id="extraParentCards"></div>
+    </div>
+    <div class="tax-note">💡 Netto visas som en förenklad uppskattning: bruttoersättning × (1 − skattesats). För exakt preliminärt skatteavdrag används normalt Skatteverkets skattetabeller och Försäkringskassans avdrag.</div>
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="goStep(3)">Nästa →</button>
+      <button class="btn btn-secondary" onclick="goStep(1)">← Tillbaka</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="step3" class="hidden">
+    <h2>Dagar &amp; fördelning</h2>
+    <div class="days-summary"><h3>📊 Dagar per förälder</h3><div class="days-grid" id="daysGrid"></div></div>
+
+    <div class="remaining-panel" id="remainingPanel">
+      <h3>✏️ Kvarvarande dagar att fördela</h3>
+      <p style="font-size:.81rem;color:var(--g500);margin-bottom:10px">Ändra här om planeringen startar efter att dagar redan har använts, eller om dagar har överlåtits till ytterligare personer.</p>
+      <div class="remaining-grid" id="remainingGrid"></div>
+      <button type="button" class="btn btn-secondary" style="font-size:.78rem;padding:7px 14px;margin-top:10px" onclick="resetRemainingToDefault()">↩️ Återställ till standarddagar</button>
+    </div>
+
+    <div class="xfer-section" id="xferSection">
+      <h3>↔️ Överlåta dagar</h3>
+      <p style="font-size:.81rem;color:var(--g500);margin-bottom:12px">90 reserverade dagar per förälder kan <em>inte</em> överlåtas. Max: 105 SGI + 45 lägstadagar.</p>
+      <div class="form-grid">
+        <div class="form-group"><label id="t1lbl">F1 överlåter till F2</label>
+          <input type="number" id="p1xfer" min="0" value="0" oninput="updateTransfer()">
+          <span class="form-hint" id="p1xferHint"></span></div>
+        <div class="form-group"><label id="t2lbl">F2 överlåter till F1</label>
+          <input type="number" id="p2xfer" min="0" value="0" oninput="updateTransfer()">
+          <span class="form-hint" id="p2xferHint"></span></div>
+      </div>
+      <div id="xferResult"></div>
+    </div>
+
+    <div class="info-box" style="margin-top:14px">ℹ️ <strong>Regler:</strong> De första 180 dagarna (räknat gemensamt för båda föräldrarna) <em>måste</em> vara SGI-dagar. Lägstanivå (180 kr/dag) får tas ut först efter dessa 180 SGI-dagar. Max 60 dubbeldagar under barnets första 15 månader.</div>
+
+    <!-- AUTO DISTRIBUTE -->
+    <div class="xfer-section" style="margin-top:14px;border-color:var(--r200);background:linear-gradient(135deg,#fff8fa,#fdf4ff)">
+      <h3>✨ Automatisk fördelning</h3>
+      <p style="font-size:.81rem;color:var(--g500);margin-bottom:12px">Sprider dagarna jämnt över perioden. De 180 första dagarna är alltid SGI. Därefter blandas SGI/lägsta för jämnast möjlig månadsersättning.</p>
+      <div class="check-row" style="margin-bottom:12px">
+        <input type="checkbox" id="autoDistrib" onchange="toggleAuto()">
+        <label for="autoDistrib" style="font-weight:700;color:var(--r700);font-size:.93rem">Fördela dagar automatiskt</label>
+      </div>
+      <div id="autoOpts" class="hidden">
+        <div class="form-group"><label>SGI-skydd efter barnets 1-årsdag (min 5 dagar/v)</label>
+          <div style="margin-top:5px;display:flex;flex-direction:column;gap:5px">
+            <div class="check-row"><input type="checkbox" id="asProt1" checked>
+              <label for="asProt1">Skydda SGI för <span id="asSgiLbl1">Förälder 1</span></label></div>
+            <div class="check-row" id="asProt2Row"><input type="checkbox" id="asProt2" checked>
+              <label for="asProt2">Skydda SGI för <span id="asSgiLbl2">Förälder 2</span></label></div>
+          </div>
+        </div>
+        <div id="autoPreview" class="info-box" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="buildCalendar()">Visa kalender 📅</button>
+      <button class="btn btn-secondary" onclick="goStep(2)">← Tillbaka</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div id="step4" class="hidden">
+    <h2>Kalender</h2>
+    <p style="color:var(--g500);font-size:.87rem">Klicka på <strong>SGI</strong> / <strong>Låg</strong> / <strong>–</strong> på varje föräldrad för att ange uttag. Båda föräldrarna visas alltid om de är aktiva den dagen.</p>
+    <div id="autoResultBox" class="hidden" style="margin-top:12px">
+      <div class="info-box" id="autoResultMsg"></div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:.82rem;padding:7px 14px" onclick="rerunAuto()">🔄 Kör om automatisk fördelning</button>
+    </div>
+    <div class="btn-actions">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Inställningar</button>
+      <button class="btn btn-warn" onclick="clearCalendarPlanning()">🧹 Rensa planering</button>
+      <button class="btn btn-danger" onclick="startOverPlanning()">🔄 Starta om planering</button>
+      <button class="btn btn-green" onclick="savePlan()">💾 Spara planering</button>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Skriv ut</button>
+    </div>
+    <div class="scenario-inline-panel" id="scenarioInlinePanel">
+      <div class="scenario-head">
+        <h3>💾 Sparade scenarier</h3>
+        <span style="font-size:.78rem;color:var(--g500);font-weight:700">Tryck på <strong>Spara planering</strong> för att lägga nuvarande planering i listan. Namnet kan ändras direkt i listan.</span>
+      </div>
+      <div class="scenario-list" id="scenarioInlineList"></div>
+      <div class="btn-actions scenario-actions">
+        <button type="button" class="btn btn-green" onclick="downloadScenarioBundle()">📦 Spara samtliga scenarier till fil</button>
+        <label class="btn btn-secondary file-label-btn" for="loadInput">📂 Läs in scenariefil</label>
+      </div>
+      <div class="scenario-status" id="scenarioStatus">Inga scenarier sparade lokalt ännu.</div>
+    </div>
+  </div>
+
+</div><!-- /setup-panel -->
+</div><!-- /container -->
+
+<!-- CALENDAR -->
+<div class="cal-container hidden" id="calSection">
+  <div class="print-love-banner">👶 Föräldraledighetskalender · planerad med kärlek 🍼🧸</div>
+  <div class="cal-hdr">
+    <h2>📅 Föräldraledighetskalender</h2>
+    <div class="legend" id="legendBox">
+      <div class="legend-item"><div class="leg-dot" style="background:var(--r500)"></div><span id="leg1">F1</span> SGI</div>
+      <div class="legend-item"><div class="leg-dot" style="background:#be185d"></div><span id="leg1b">F1</span> Låg</div>
+      <div class="legend-item" id="leg2Wrap"><div class="leg-dot" style="background:var(--p700)"></div><span id="leg2">F2</span> SGI</div>
+      <div class="legend-item" id="leg2bWrap"><div class="leg-dot" style="background:#6d28d9"></div><span id="leg2b">F2</span> Låg</div>
+    </div>
+  </div>
+  <div id="calMonths"></div>
+
+  <div class="totals-section">
+    <h2>Sammanställning</h2>
+    <div id="totalsBars"></div>
+    <div style="overflow-x:auto">
+    <table class="sum-table">
+      <thead><tr>
+        <th>Månad</th>
+        <th style="text-align:right" id="th1s">F1 SGI</th>
+        <th style="text-align:right" id="th1l">F1 Låg</th>
+        <th style="text-align:right" id="th1p">F1 Ers.</th>
+        <th style="text-align:right" id="th2s">F2 SGI</th>
+        <th style="text-align:right" id="th2l">F2 Låg</th>
+        <th style="text-align:right" id="th2p">F2 Ers.</th>
+        <th style="text-align:right">Totalt</th>
+      </tr></thead>
+      <tbody id="sumBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:20px;font-size:.75rem;color:var(--g500);border-top:1px solid var(--r100);margin-top:40px;background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.5))">
+  <div style="font-weight:700;color:var(--r700)">Baserat på Försäkringskassans regler (2026). Uppskattning – kontrollera alltid med Försäkringskassan.</div>
+  <div style="max-width:900px;margin:8px auto 0;line-height:1.45;color:var(--g700)">Detta verktyg är byggt av Stefan Bengtsson i juni 2026 enligt de regler som gällde för föräldrapenning då. Utvecklaren tar inget ansvar för att regelverket kan ändras. Kontakt: <a href="mailto:Stefan.bengtsson@telia.com" style="color:var(--r700);font-weight:700;text-decoration:none">Stefan.bengtsson@telia.com</a></div>
+  <div class="footer-babies" aria-hidden="true"><span>👶</span><span>🍼</span><span>🧸</span><span>🌷</span></div>
+</footer>
+
+<script>
+// ═══════════════ STATE ═══════════════════
+const S={
+  numParents:0,
+  p1:{name:'Förälder 1',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null},
+  p2:{name:'Förälder 2',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null},
+  birth:null,
+  days:{},        // 'YYYY-MM-DD':{p1:'sgi'|'low'|null, p2:'sgi'|'low'|null}
+  calStart:null, calEnd:null,
+  autoInfo:null
+};
+let allHols={};
+
+// ═══════════════ HOLIDAYS ════════════════
+function buildHols(year){
+  const h={}, a=(m,d,n)=>h[`${year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`]=n;
+  a(1,1,'Nyårsdagen');a(1,6,'Trettondedag');a(5,1,'Första maj');a(6,6,'Nationaldagen');
+  a(12,24,'Julafton');a(12,25,'Juldagen');a(12,26,'Annandag jul');a(12,31,'Nyårsafton');
+  const e=easter(year);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const ad=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r};
+  h[fmt(ad(e,-2))]='Långfredagen';h[fmt(ad(e,-1))]='Påskafton';
+  h[fmt(e)]='Påskdagen';h[fmt(ad(e,1))]='Annandag påsk';
+  h[fmt(ad(e,39))]='Kristi himmelsfärd';h[fmt(ad(e,48))]='Pingstafton';h[fmt(ad(e,49))]='Pingstdagen';
+  let ms=new Date(year,5,20); while(ms.getDay()!==5)ms.setDate(ms.getDate()+1);
+  h[fmt(ms)]='Midsommarafton';h[fmt(ad(ms,1))]='Midsommardagen';
+  let as=new Date(year,9,31); while(as.getDay()!==5)as.setDate(as.getDate()+1);
+  h[fmt(ad(as,1))]='Alla helgons dag';
+  return h;
+}
+function easter(Y){
+  const a=Y%19,b=Math.floor(Y/100),c=Y%100,d=Math.floor(b/4),e=b%4;
+  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),hh=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-hh-k)%7;
+  const m=Math.floor((a+11*hh+22*l)/451);
+  return new Date(Y,Math.floor((hh+l-7*m+114)/31)-1,((hh+l-7*m+114)%31)+1);
+}
+function loadHols(s,e){for(let y=s.getFullYear();y<=e.getFullYear();y++)Object.assign(allHols,buildHols(y));}
+const isHol=ds=>allHols[ds]||null;
+
+// ═══════════════ DATE UTILS ══════════════
+const ds=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const pd=s=>{if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const iso=d=>d?ds(d):'';
+const wd=d=>(d.getDay()+6)%7; // Mon=0
+function getWeekNumber(date){
+  const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
+  const dayNum=d.getUTCDay()||7;
+  d.setUTCDate(d.getUTCDate()+4-dayNum);
+  const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+
+// ═══════════════ NAV ═════════════════════
+function selectParents(n){
+  S.numParents=n;
+  document.querySelectorAll('#step1 .toggle-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
+  document.getElementById('p2card').style.display=n===2?'':'none';
+  document.getElementById('xferSection').style.display=n===2?'':'none';
+  ['leg2Wrap','leg2bWrap'].forEach(id=>document.getElementById(id).style.display=n===2?'':'none');
+  if(n===1){S.p1.sgiDays=390;S.p1.lowDays=90;S.p2.sgiDays=0;S.p2.lowDays=0;}
+  else{S.p1.sgiDays=195;S.p1.lowDays=45;S.p2.sgiDays=195;S.p2.lowDays=45;}
+  goStep(2);
+}
+function goStep(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('step'+i).classList.add('hidden');
+    const d=document.getElementById('s'+i+'d');
+    d.classList.remove('active','done');
+    if(i<n)d.classList.add('done');else if(i===n)d.classList.add('active');
+  });
+  document.getElementById('step'+n).classList.remove('hidden');
+  if(n===3){updateDaysGrid();updateTransfer();}
+}
+function updateParentName(p){
+  S['p'+p].name=document.getElementById('p'+p+'name').value.trim()||'Förälder '+p;
+  document.getElementById('asSgiLbl'+p).textContent=S['p'+p].name;
+  updateLegend();
+}
+function updateLegend(){
+  ['leg1','leg1b'].forEach(id=>document.getElementById(id).textContent=S.p1.name+' ');
+  const e2=document.getElementById('leg2'),e2b=document.getElementById('leg2b');
+  if(e2)e2.textContent=S.p2.name+' ';if(e2b)e2b.textContent=S.p2.name+' ';
+}
+
+// ═══════════════ RATES ═══════════════════
+const MIN_SGI=117590, MAX_SGI=592000, MAX_DAY=1259, LOW_DAY=180, BASE_DAY=250;
+function dayRate(sgi){
+  if(!sgi||sgi<MIN_SGI)return BASE_DAY;
+  const cappedSgi=Math.min(sgi,MAX_SGI);
+  return Math.min(cappedSgi*.8/365,MAX_DAY);
+}
+const fmt=n=>Math.round(n).toLocaleString('sv-SE')+' kr';
+function parsePct(v){
+  if(v===undefined||v===null)return 30;
+  const n=parseFloat(String(v).replace(',','.'));
+  return Number.isFinite(n)?Math.max(0,Math.min(100,n)):30;
+}
+function taxPct(p){return parsePct(S['p'+p].tax);}
+function net(amount,p){return amount*(1-taxPct(p)/100);}
+function fmtGrossNet(amount,p){return `${fmt(amount)} <span class="net-pay">netto ca ${fmt(net(amount,p))}</span>`;}
+function updateTaxFromInputs(){
+  const e1=document.getElementById('p1tax'),e2=document.getElementById('p2tax');
+  if(e1)S.p1.tax=parsePct(e1.value);
+  if(e2)S.p2.tax=parsePct(e2.value);
+  updateDaysGrid();
+  updateAllMonthTotals();
+  renderSumTable();
+  updateTracker();
+}
+
+function getInputValue(id){const el=document.getElementById(id);return el?el.value:'';}
+function getCheckboxValue(id,def=false){const el=document.getElementById(id);return el?!!el.checked:def;}
+function syncStateFromForm(){
+  // Samla alltid aktuell formulärdata till S innan kalender byggs eller fil sparas.
+  S.p1.name=getInputValue('p1name').trim()||'Förälder 1';
+  S.p1.sgi=parseFloat(getInputValue('p1sgi'))||0;
+  S.p1.tax=parsePct(getInputValue('p1tax'));
+  S.p1.start=pd(getInputValue('p1start'));
+  S.p1.end=pd(getInputValue('p1end'));
+  S.birth=pd(getInputValue('birthDate'));
+  if(S.numParents===2){
+    S.p2.name=getInputValue('p2name').trim()||'Förälder 2';
+    S.p2.sgi=parseFloat(getInputValue('p2sgi'))||0;
+    S.p2.tax=parsePct(getInputValue('p2tax'));
+    S.p2.start=pd(getInputValue('p2start'));
+    S.p2.end=pd(getInputValue('p2end'));
+  }else{
+    S.p2.name=getInputValue('p2name').trim()||'Förälder 2';
+    S.p2.sgi=parseFloat(getInputValue('p2sgi'))||0;
+    S.p2.tax=parsePct(getInputValue('p2tax'));
+    S.p2.start=pd(getInputValue('p2start'));
+    S.p2.end=pd(getInputValue('p2end'));
+    S.p1.sgiDays=390;S.p1.lowDays=90;S.p2.sgiDays=0;S.p2.lowDays=0;
+  }
+}
+function activeParents(){return S.numParents===2?[1,2]:[1];}
+function normalizeDaysObject(days){
+  const out={};
+  for(const [date,data] of Object.entries(days||{})){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!data)continue;
+    const row={};
+    for(const p of activeParents()){
+      const v=data['p'+p];
+      if(v==='sgi'||v==='low')row['p'+p]=v;
+    }
+    if(row.p1||row.p2)out[date]=row;
+  }
+  return out;
+}
+function pruneDaysOutsideCalendar(){
+  if(!S.calStart||!S.calEnd){S.days=normalizeDaysObject(S.days);return;}
+  const out={};
+  for(const [date,data] of Object.entries(normalizeDaysObject(S.days))){
+    const d=pd(date);
+    if(d&&d>=S.calStart&&d<=S.calEnd)out[date]=data;
+  }
+  S.days=out;
+}
+function budgetOverflowMessages(){
+  const msgs=[];
+  for(const p of activeParents()){
+    const used=usedCountsForParent(p);
+    const parentName=(S['p'+p]&&S['p'+p].name)||('Förälder '+p);
+    if(used.sgi>dayBudgetForParent(p,'sgi'))msgs.push(`${parentName}: ${used.sgi} SGI-dagar används men bara ${dayBudgetForParent(p,'sgi')} finns tillgängliga.`);
+    if(used.low>dayBudgetForParent(p,'low'))msgs.push(`${parentName}: ${used.low} lägstanivådagar används men bara ${dayBudgetForParent(p,'low')} finns tillgängliga.`);
+  }
+  return msgs;
+}
+function showPlanWarning(msg){
+  let w=document.getElementById('planWarning');
+  if(!w){
+    w=document.createElement('div');w.id='planWarning';
+    Object.assign(w.style,{position:'fixed',top:'58px',left:'50%',transform:'translateX(-50%) translateY(-8px)',maxWidth:'min(860px,calc(100vw - 28px))',background:'linear-gradient(120deg,#fff7ed,#fff1f2)',color:'#9f1239',border:'2px solid #f9a8d4',borderRadius:'16px',padding:'12px 18px',fontSize:'.9rem',fontWeight:'800',boxShadow:'0 10px 30px rgba(188,10,66,.18)',opacity:'0',transition:'all .22s ease',zIndex:'10000',textAlign:'center',pointerEvents:'none'});
+    document.body.appendChild(w);
+  }
+  w.innerHTML=msg;
+  w.style.opacity='1';w.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(w._t);w._t=setTimeout(()=>{w.style.opacity='0';w.style.transform='translateX(-50%) translateY(-8px)';},5200);
+}
+function warnIfPlanExceedsBudget(){
+  const msgs=budgetOverflowMessages();
+  if(msgs.length)showPlanWarning('⚠️ Planeringen använder fler dagar än tillgängligt:<br>'+msgs.join('<br>')+'<br>Ta bort motsvarande dagar innan du sparar.');
+  return msgs.length===0;
+}
+function validateBeforeSave(){
+  pruneDaysOutsideCalendar();
+  const msgs=budgetOverflowMessages();
+  if(msgs.length){
+    alert('Planeringen kan inte sparas eftersom den använder fler dagar än vad som finns tillgängligt:\n\n'+msgs.join('\n')+'\n\nTa bort motsvarande dagar i kalendern och spara igen.');
+    return false;
+  }
+  return true;
+}
+
+function updateDaysGrid(){
+  const g=document.getElementById('daysGrid');if(!g)return;
+  const r1=dayRate(parseFloat(document.getElementById('p1sgi').value)||0);
+  const r2=S.numParents===2?dayRate(parseFloat(document.getElementById('p2sgi').value)||0):0;
+  let h=`<div class="days-chip"><div class="chip-label">${S.p1.name} SGI-dagar</div><div class="chip-val">${S.p1.sgiDays}</div><div class="chip-sub">~${fmt(r1)} /dag · netto ${fmt(net(r1,1))}</div></div>
+  <div class="days-chip"><div class="chip-label">${S.p1.name} Lägstanivå</div><div class="chip-val">${S.p1.lowDays}</div><div class="chip-sub">${fmt(LOW_DAY)} /dag · netto ${fmt(net(LOW_DAY,1))}</div></div>`;
+  if(S.numParents===2)h+=`<div class="days-chip"><div class="chip-label">${S.p2.name} SGI-dagar</div><div class="chip-val">${S.p2.sgiDays}</div><div class="chip-sub">~${fmt(r2)} /dag · netto ${fmt(net(r2,2))}</div></div>
+  <div class="days-chip"><div class="chip-label">${S.p2.name} Lägstanivå</div><div class="chip-val">${S.p2.lowDays}</div><div class="chip-sub">${fmt(LOW_DAY)} /dag · netto ${fmt(net(LOW_DAY,2))}</div></div>`;
+  g.innerHTML=h;
+}
+
+function updateTransfer(showWarnings=true){
+  // En förälder: ensam planering ska alltid ge hela potten till förälder 1.
+  // Tidigare kunde denna funktion råka skriva över dagpotten till 195/45 även i en-förälder-läge.
+  if(S.numParents!==2){
+    S.p1.sgiDays=390;S.p1.lowDays=90;S.p2.sgiDays=0;S.p2.lowDays=0;
+    const r=document.getElementById('xferResult');if(r)r.innerHTML='';
+    ['p1xferHint','p2xferHint'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
+    updateDaysGrid();
+    if(showWarnings)warnIfPlanExceedsBudget();
+    return;
+  }
+
+  const t1=parseInt(document.getElementById('p1xfer').value)||0;
+  const t2=parseInt(document.getElementById('p2xfer').value)||0;
+  const MAX=150;
+  const c1=Math.min(Math.max(0,t1),MAX),c2=Math.min(Math.max(0,t2),MAX);
+  if(t1!==c1)document.getElementById('p1xfer').value=c1;
+  if(t2!==c2)document.getElementById('p2xfer').value=c2;
+  document.getElementById('p1xferHint').textContent=`Max ${MAX} dagar`;
+  document.getElementById('p2xferHint').textContent=`Max ${MAX} dagar`;
+  const s1=Math.min(c1,105),l1=c1-s1,s2=Math.min(c2,105),l2=c2-s2;
+  S.p1.sgiDays=195-s1+s2;S.p1.lowDays=45-l1+l2;
+  S.p2.sgiDays=195-s2+s1;S.p2.lowDays=45-l2+l1;
+  const r=document.getElementById('xferResult');
+  r.innerHTML=(c1>0||c2>0)?`<div class="info-box">📊 <strong>Efter överlåtelse:</strong><br>
+    ${S.p1.name}: ${S.p1.sgiDays} SGI + ${S.p1.lowDays} låg<br>
+    ${S.p2.name}: ${S.p2.sgiDays} SGI + ${S.p2.lowDays} låg</div>`:'';
+  updateDaysGrid();
+  if(showWarnings)warnIfPlanExceedsBudget();
+}
+
+// ═══════════════ AUTO TOGGLE ══════════════
+function toggleAuto(){
+  const on=document.getElementById('autoDistrib').checked;
+  document.getElementById('autoOpts').classList.toggle('hidden',!on);
+  document.getElementById('asProt2Row').style.display=S.numParents===2?'':'none';
+  document.getElementById('asSgiLbl1').textContent=S.p1.name;
+  document.getElementById('asSgiLbl2').textContent=S.p2.name;
+  if(on)document.getElementById('autoPreview').innerHTML=
+    `📋 Automatiken använder en optimeringsmotor med månads-/veckopaket. Målet är att använda <strong>samtliga dagar</strong> och minimera skillnaden i ersättning per månad. Lägstanivå spärras tills 180 SGI-dagar har tagits ut gemensamt. Månadsoptimeringen behålls, men dagar placeras inom veckan från måndag och framåt för att undvika hål. Helg/arbetsfri dag används först när vardagar inte räcker.`;
+}
+
+// ═══════════════ AUTO DISTRIBUTE ═════════
+function runAutoDistrib(){
+  S.days={};
+  S.autoInfo={warnings:[],exact:true,allocated:{1:{sgi:0,low:0},2:{sgi:0,low:0}},targetNote:''};
+
+  const birth=S.birth;
+  const bp1=birth?new Date(birth.getFullYear()+1,birth.getMonth(),birth.getDate()):null;
+  const parents=S.numParents===2?[1,2]:[1];
+  const prot={1:document.getElementById('asProt1').checked,2:S.numParents===2&&document.getElementById('asProt2').checked};
+  const rate={1:dayRate(S.p1.sgi),2:dayRate(S.p2.sgi)};
+  const budget={1:{sgi:S.p1.sgiDays,low:S.p1.lowDays},2:{sgi:S.p2.sgiDays,low:S.p2.lowDays}};
+  const GATE=180;
+
+  const mkOf=d=>`${d.getFullYear()}-${d.getMonth()}`;
+  const daySlotKey=sl=>`${sl.p}|${sl.ds}`;
+  const inPeriod=(p,d)=>{const ps=S['p'+p];return ps.start&&ps.end&&d>=ps.start&&d<=ps.end;};
+  const nonWork=d=>wd(d)>=5||!!isHol(ds(d));
+  function isoWeekKey(date){return date.getFullYear()+'-W'+String(getWeekNumber(date)).padStart(2,'0');}
+  function monthStartFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m,1);}
+  function monthEndFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m+1,0);}
+
+  const slots=[];
+  let ord=0,d=new Date(S.calStart);
+  while(d<=S.calEnd){
+    for(const p of parents){
+      if(inPeriod(p,d)){
+        const d2=ds(d);
+        slots.push({p,ds:d2,date:new Date(d),mk:mkOf(d),week:isoWeekKey(d),weekday:wd(d),nonWork:nonWork(d),order:ord++});
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+  slots.sort((a,b)=>a.date-b.date||a.p-b.p);
+  if(!slots.length)return;
+
+  const monthKeys=[];
+  let mc=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1);
+  const lastM=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);
+  while(mc<=lastM){monthKeys.push(mkOf(mc));mc.setMonth(mc.getMonth()+1);}
+
+  const slotsBy={};
+  for(const mk of monthKeys){slotsBy[mk]={1:[],2:[]};}
+  for(const sl of slots){if(slotsBy[sl.mk])slotsBy[sl.mk][sl.p].push(sl);}
+
+  for(const p of parents){
+    const cap=slots.filter(sl=>sl.p===p).length;
+    const need=budget[p].sgi+budget[p].low;
+    if(need>cap){
+      S.autoInfo.exact=false;
+      S.autoInfo.warnings.push(`${S['p'+p].name}: perioden rymmer bara ${cap} kalenderdagar, men ${need} dagar ska fördelas.`);
+      const overflow=need-cap;
+      const cutLow=Math.min(overflow,budget[p].low);
+      budget[p].low-=cutLow;
+      budget[p].sgi-=Math.max(0,overflow-cutLow);
+    }
+  }
+
+  function fullWeekCountInMonth(mk){
+    const s=monthStartFromKey(mk),e=monthEndFromKey(mk),set=new Set();
+    let x=new Date(s);
+    while(x<=e){
+      // Räkna full månad i kalenderveckor, men hoppa över veckor som bara
+      // råkar nudda månaden med lördag/söndag. Det gör t.ex. jan 2028 till
+      // fem relevanta veckor i stället för sex.
+      if(wd(x)<5)set.add(isoWeekKey(x));
+      x.setDate(x.getDate()+1);
+    }
+    return Math.max(1,set.size);
+  }
+  function parentMonthWeight(p,mk){
+    const arr=(slotsBy[mk]&&slotsBy[mk][p]||[]);
+    if(!arr.length)return 0;
+    const ms=monthStartFromKey(mk),me=monthEndFromKey(mk);
+    const first=arr[0].date,last=arr[arr.length-1].date;
+    // Hela kalendermånader ska ha samma vikt. Endast start- och slutmånader
+    // viktas ned, baserat på hur många kalenderveckor som faktiskt ingår.
+    if(first<=ms&&last>=me)return 1;
+    const set=new Set(arr.map(sl=>sl.week));
+    return Math.max(0.12,set.size/fullWeekCountInMonth(mk));
+  }
+
+  const overlaps=parents.length===2&&S.p1.start&&S.p2.start&&S.p1.end&&S.p2.end&&S.p1.start<=S.p2.end&&S.p2.start<=S.p1.end;
+  if(overlaps)S.autoInfo.warnings.push('Föräldrarnas perioder överlappar. Motorn optimerar fortfarande dagarna, men kontrollera dubbeldagar manuellt om ni vill begränsa dem.');
+
+  function buildParentOptions(p,mk,target){
+    const arrSlots=(slotsBy[mk]&&slotsBy[mk][p])||[];
+    const cap=arrSlots.length;
+    if(!cap)return [{sgi:0,low:0,n:0,pay:0,weekend:0,cost:0}];
+    const wdCap=arrSlots.filter(sl=>!sl.nonWork).length;
+    const norm=Math.max(1200,target||1200);
+    const opts=[],byTotal=new Map(),byLow=new Map(),lowZero=[];
+    function pushLimited(map,key,o,limit){let a=map.get(key);if(!a){a=[];map.set(key,a);}a.push(o);if(a.length>limit*3)a.sort((x,y)=>x.cost-y.cost).splice(limit*2);}
+    for(let s=0;s<=Math.min(budget[p].sgi,cap);s++){
+      const lMax=Math.min(budget[p].low,cap-s);
+      for(let l=0;l<=lMax;l++){
+        const n=s+l;
+        const pay=s*rate[p]+l*LOW_DAY;
+        const diff=(pay-target)/norm;
+        const weekend=Math.max(0,n-wdCap);
+        let cost=diff*diff+weekend*0.00035;
+        if(target===0&&n>0)cost+=10+n;
+        const o={sgi:s,low:l,n,pay,weekend,cost};
+        opts.push(o);if(l===0)lowZero.push(o);pushLimited(byTotal,n,o,8);pushLimited(byLow,l,o,6);
+      }
+    }
+    opts.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n);
+    const keep=[],seen=new Set();
+    const add=o=>{const k=o.sgi+'|'+o.low;if(!seen.has(k)){seen.add(k);keep.push(o);}};
+    opts.slice(0,340).forEach(add);
+    lowZero.forEach(add);
+    for(const a of byTotal.values())a.sort((x,y)=>x.cost-y.cost).slice(0,8).forEach(add);
+    for(const a of byLow.values())a.sort((x,y)=>x.cost-y.cost).slice(0,6).forEach(add);
+    keep.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n);
+    return keep.slice(0,520);
+  }
+
+  function optimizeParent(p,sharedSgiBefore){
+    const pMonths=monthKeys.filter(mk=>(slotsBy[mk][p]||[]).length);
+    const weights={};let wsum=0;
+    for(const mk of pMonths){weights[mk]=parentMonthWeight(p,mk);wsum+=weights[mk];}
+    const totalPay=budget[p].sgi*rate[p]+budget[p].low*LOW_DAY;
+    const base=wsum?totalPay/wsum:0;
+    const options=pMonths.map(mk=>buildParentOptions(p,mk,base*(weights[mk]||0)));
+    const future=[];
+    for(let i=0;i<=pMonths.length;i++){
+      let cap=0;
+      for(let j=i;j<pMonths.length;j++)cap+=(slotsBy[pMonths[j]][p]||[]).length;
+      future[i]=cap;
+    }
+    let beam=[{sgi:0,low:0,cost:0,alloc:[]}];
+    const BEAM=7000;
+    for(let i=0;i<pMonths.length;i++){
+      const mk=pMonths[i],target=base*(weights[mk]||0);
+      const map=new Map();
+      for(const st of beam){
+        for(const o of options[i]){
+          const ns=st.sgi+o.sgi,nl=st.low+o.low;
+          if(ns>budget[p].sgi||nl>budget[p].low)continue;
+          const remTot=budget[p].sgi+budget[p].low-ns-nl;
+          if(remTot>future[i+1])continue;
+          if(budget[p].sgi-ns>future[i+1])continue;
+          // 180-dagarsspärren. Lågdagar i samma månad är tillåtna om månadens SGI-dagar först kan passera spärren.
+          if(o.low>0&&sharedSgiBefore+st.sgi<GATE&&sharedSgiBefore+st.sgi+o.sgi<GATE)continue;
+          const diff=(o.pay-target)/Math.max(1200,target||1200);
+          const nc=st.cost+o.cost+diff*diff*0.1;
+          const key=ns+'|'+nl;
+          const old=map.get(key);
+          if(!old||nc<old.cost)map.set(key,{sgi:ns,low:nl,cost:nc,alloc:st.alloc.concat([{mk,p,sgi:o.sgi,low:o.low,pay:o.pay,weekend:o.weekend}])});
+        }
+      }
+      beam=[...map.values()].sort((a,b)=>a.cost-b.cost).slice(0,BEAM);
+      if(!beam.length)break;
+    }
+    let final=beam.find(st=>st.sgi===budget[p].sgi&&st.low===budget[p].low);
+    if(!final&&beam.length){
+      final=[...beam].sort((a,b)=>(a.cost+Math.abs(budget[p].sgi-a.sgi)*1000+Math.abs(budget[p].low-a.low)*1000)-(b.cost+Math.abs(budget[p].sgi-b.sgi)*1000+Math.abs(budget[p].low-b.low)*1000))[0];
+      S.autoInfo.exact=false;
+      S.autoInfo.warnings.push(`${S['p'+p].name}: månadsplanen kunde inte matcha alla dagar exakt. Reservfyllning används.`);
+    }
+    return final||{sgi:0,low:0,cost:0,alloc:[]};
+  }
+
+  const parentOrder=parents.slice().sort((a,b)=>(S['p'+a].start||new Date(2999,0,1))-(S['p'+b].start||new Date(2999,0,1)));
+  const parentPlans={1:[],2:[]};
+  let sharedSgiBefore=0;
+  for(const p of parentOrder){
+    const plan=optimizeParent(p,sharedSgiBefore);
+    parentPlans[p]=plan.alloc;
+    sharedSgiBefore+=budget[p].sgi;
+  }
+
+  const planByMonth={};
+  for(const mk of monthKeys){planByMonth[mk]={1:{sgi:0,low:0},2:{sgi:0,low:0}};}
+  for(const p of parents){
+    for(const it of parentPlans[p])planByMonth[it.mk][p]={sgi:it.sgi,low:it.low};
+  }
+
+  function chooseSpread(arr,count){
+    const a=arr.slice().sort((x,y)=>x.date-y.date||x.p-y.p);
+    if(count<=0)return[];
+    if(count>=a.length)return a;
+    const res=[],used=new Set();
+    for(let i=0;i<count;i++){
+      let idx=Math.round(((i+0.5)*a.length/count)-0.5);
+      idx=Math.max(0,Math.min(a.length-1,idx));
+      let best=idx,dist=0;
+      while(used.has(best)&&dist<a.length){dist++;const left=idx-dist,right=idx+dist;if(left>=0&&!used.has(left)){best=left;break;}if(right<a.length&&!used.has(right)){best=right;break;}}
+      used.add(best);res.push(a[best]);
+    }
+    return res.sort((x,y)=>x.date-y.date||x.p-y.p);
+  }
+  function chooseSlots(cands,count,mode='spread'){
+    const arr=cands.slice().sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);
+    if(count<=0)return[];
+
+    // VIKTIGT: behåll den tidigare, fungerande månadsoptimeringen.
+    // För 180-dagarsspärren ska tidigaste möjliga SGI-dagar fortfarande väljas
+    // i ren kalenderordning. Annars kan lågdagar skjutas bort och månadsbalansen
+    // försämras. Endast den normala datumplaceringen packas veckovis.
+    if(mode==='early'){
+      return arr.filter(x=>!x.nonWork).concat(arr.filter(x=>x.nonWork)).slice(0,count).sort((a,b)=>a.date-b.date||a.p-b.p);
+    }
+
+    // Normal placering efter månadsoptimeringen:
+    // 1) bevara exakt antal dagar som månadsoptimeringen valt för månaden,
+    // 2) prioritera vardagar,
+    // 3) undvik hål inom veckan genom att alltid välja veckans dagar som en prefixserie:
+    //    måndag, tisdag, onsdag, torsdag, fredag,
+    // 4) använd helg/röd dag först när vardagarna inte räcker.
+    function grouped(days){
+      const map=new Map();
+      for(const sl of days){
+        if(!map.has(sl.week))map.set(sl.week,{week:sl.week,first:sl.date,weekday:[],off:[]});
+        const g=map.get(sl.week);
+        if(sl.date<g.first)g.first=sl.date;
+        (sl.nonWork?g.off:g.weekday).push(sl);
+      }
+      const groups=[...map.values()].sort((a,b)=>a.first-b.first);
+      for(const g of groups){
+        g.weekday.sort((a,b)=>a.weekday-b.weekday||a.date-b.date||a.p-b.p);
+        g.off.sort((a,b)=>a.date-b.date||a.p-b.p);
+      }
+      return groups;
+    }
+    function takePrefixByWeek(days,n,bucket){
+      const groups=grouped(days);
+      const picked=[];
+      let maxLen=0;
+      for(const g of groups)maxLen=Math.max(maxLen,g[bucket].length);
+      for(let level=0;level<maxLen&&picked.length<n;level++){
+        for(const g of groups){
+          if(picked.length>=n)break;
+          if(g[bucket][level])picked.push(g[bucket][level]);
+        }
+      }
+      return picked;
+    }
+
+    const weekdays=arr.filter(x=>!x.nonWork);
+    const off=arr.filter(x=>x.nonWork);
+    if(count<=weekdays.length){
+      return takePrefixByWeek(weekdays,count,'weekday').sort((a,b)=>a.date-b.date||a.p-b.p);
+    }
+    return takePrefixByWeek(weekdays,weekdays.length,'weekday')
+      .concat(takePrefixByWeek(off,count-weekdays.length,'off'))
+      .sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);
+  }
+
+  const assigned=new Set();
+  let gateSeen=0,gateDate=null;
+  const placedCount={1:{sgi:0,low:0},2:{sgi:0,low:0}};
+  function available(mk,p,afterDate=null){return (slotsBy[mk][p]||[]).filter(sl=>!assigned.has(daySlotKey(sl))&&(!afterDate||sl.date>afterDate));}
+  function put(sl,type){
+    if(!S.days[sl.ds])S.days[sl.ds]={};
+    S.days[sl.ds]['p'+sl.p]=type;
+    assigned.add(daySlotKey(sl));
+    placedCount[sl.p][type]++;
+    if(type==='sgi'){gateSeen++;if(gateSeen===GATE)gateDate=new Date(sl.date);}
+  }
+  function placeLowSpread(selected,lowCount){const lows=new Set(chooseSpread(selected,lowCount).map(daySlotKey));for(const sl of selected)put(sl,lows.has(daySlotKey(sl))?'low':'sgi');}
+
+  // Placera datum efter månadsoptimeringen. Vardagar väljs först; helg/röd dag används när vardagarna inte räcker.
+  for(const mk of monthKeys){
+    for(const p of parents){
+      let {sgi:s,low:l}=planByMonth[mk][p];
+      if(s+l<=0)continue;
+      if(l>0&&gateSeen<GATE){
+        const need=GATE-gateSeen;
+        const earlyS=Math.min(need,s);
+        for(const sl of chooseSlots(available(mk,p),earlyS,'early'))put(sl,'sgi');
+        s-=earlyS;
+        if(gateSeen<GATE){S.autoInfo.warnings.push(`Lågdagar i ${mk} kunde inte placeras eftersom 180 SGI inte var uppnådda.`);l=0;}
+        const selected=chooseSlots(available(mk,p,gateDate),s+l,'spread');
+        placeLowSpread(selected,l);
+      }else{
+        const selected=chooseSlots(available(mk,p),s+l,'spread');
+        placeLowSpread(selected,l);
+      }
+    }
+  }
+
+  // Reservfyll rester om det behövs.
+  for(const p of parents){
+    for(const typ of ['sgi','low']){
+      let rem=budget[p][typ]-placedCount[p][typ],safety=0;
+      while(rem>0&&safety++<2000){
+        let cands=slots.filter(sl=>sl.p===p&&!assigned.has(daySlotKey(sl)));
+        if(typ==='low')cands=cands.filter(sl=>gateSeen>=GATE&&(!gateDate||sl.date>gateDate));
+        if(!cands.length)break;
+        const chosen=chooseSlots(cands,1,'spread')[0];
+        put(chosen,typ);rem--;
+      }
+      if(rem>0){S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: ${rem} ${typ==='sgi'?'SGI':'låg'}-dagar kunde inte placeras inom perioden.`);}
+    }
+  }
+
+  let seen=0,gateOk=true;
+  const used=[];
+  for(const sl of slots){const v=(S.days[sl.ds]||{})['p'+sl.p];if(v)used.push({...sl,type:v});}
+  used.sort((a,b)=>a.date-b.date||a.p-b.p);
+  for(const it of used){if(it.type==='sgi')seen++;else if(it.type==='low'&&seen<GATE){gateOk=false;break;}}
+  if(!gateOk){S.autoInfo.exact=false;S.autoInfo.warnings.push('Kontrollvarning: minst en lågdag hamnade före 180 SGI-dagar. Justera manuellt eller kör om med längre period.');}
+
+  S.autoInfo.allocated=placedCount;
+  const used1=placedCount[1].sgi+placedCount[1].low,need1=budget[1].sgi+budget[1].low;
+  const used2=placedCount[2].sgi+placedCount[2].low,need2=budget[2].sgi+budget[2].low;
+  S.autoInfo.targetNote=`Fördelade ${used1}/${need1} dagar för ${S.p1.name}`+(S.numParents===2?` och ${used2}/${need2} dagar för ${S.p2.name}`:'')+'.';
+}
+
+function rerunAuto(){
+  S.days={};
+  runAutoDistrib();
+  renderAllDays();
+  updateAllMonthTotals();
+  renderSumTable();
+  updateTracker();
+  const msg=document.getElementById('autoResultMsg');
+  if(msg)msg.innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> Optimeringsmotorn har valt månads-/veckopaket för att använda alla dagar och jämna ut ersättningen. ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;
+}
+
+// ═══════════════ BUILD CALENDAR ══════════
+function buildCalendar(){
+  syncStateFromForm();
+  updateTransfer(false);
+
+  if(!S.p1.start||!S.p1.end){alert('Ange ledighetsperiod för '+S.p1.name);return;}
+  if(S.p1.start>S.p1.end){alert('Slutdatum före startdatum för '+S.p1.name);return;}
+  if(S.numParents===2&&S.p2.start&&S.p2.end&&S.p2.start>S.p2.end){alert('Slutdatum före startdatum för '+S.p2.name);return;}
+
+  let cS=new Date(S.p1.start),cE=new Date(S.p1.end);
+  if(S.numParents===2){
+    if(S.p2.start&&S.p2.start<cS)cS=new Date(S.p2.start);
+    if(S.p2.end&&S.p2.end>cE)cE=new Date(S.p2.end);
+  }
+  S.calStart=cS;S.calEnd=cE;
+  allHols={};
+  loadHols(cS,cE);
+  pruneDaysOutsideCalendar();
+  updateLegend();
+
+  if(document.getElementById('autoDistrib').checked){
+    runAutoDistrib();
+    document.getElementById('autoResultBox').classList.remove('hidden');
+    document.getElementById('autoResultMsg').innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> Optimeringsmotorn har valt månads-/veckopaket för att använda alla dagar och jämna ut ersättningen. ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;
+  } else {
+    document.getElementById('autoResultBox').classList.add('hidden');
+  }
+
+  renderCalendar();
+  document.getElementById('calSection').classList.remove('hidden');
+  document.getElementById('stickyTracker').classList.add('visible');
+  document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'});
+  goStep(4);
+  updateTracker();
+}
+
+// ═══════════════ RENDER CALENDAR ═════════
+const WLBLS=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+
+function renderCalendar(){
+  const cont=document.getElementById('calMonths');
+  cont.innerHTML='';
+  const bp1=S.birth?new Date(S.birth.getFullYear()+1,S.birth.getMonth(),S.birth.getDate()):null;
+  let cur=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1);
+  const endM=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);
+  while(cur<=endM){
+    const yr=cur.getFullYear(),mo=cur.getMonth();
+    const mk=`${yr}-${mo}`;
+    const after1=bp1&&cur>=new Date(bp1.getFullYear(),bp1.getMonth(),1);
+
+    const mb=document.createElement('div');mb.className='month-block';mb.id='month-'+mk;
+
+    // Header
+    const mh=document.createElement('div');mh.className='month-hdr';
+    const mht=document.createElement('div');mht.className='month-hdr-top';
+    const h3=document.createElement('h3');
+    h3.textContent=cur.toLocaleString('sv-SE',{month:'long',year:'numeric'});
+    const pt=document.createElement('div');pt.className='month-p-totals';pt.id='mtot-'+mk;
+    mht.appendChild(h3);mht.appendChild(pt);mh.appendChild(mht);mb.appendChild(mh);
+
+    // Week labels, including ISO week number column
+    const wl=document.createElement('div');wl.className='week-labels';
+    const wnHead=document.createElement('div');wnHead.className='week-label wn';wnHead.textContent='Vecka';wl.appendChild(wnHead);
+    WLBLS.forEach((n,i)=>{const d2=document.createElement('div');d2.className='week-label'+(i>=5?' we':'');d2.textContent=n;wl.appendChild(d2);});
+    mb.appendChild(wl);
+
+    // Grid, rendered week by week so week numbers align with rows
+    const grid=document.createElement('div');grid.className='cal-grid';grid.id='grid-'+mk;
+    const first=new Date(yr,mo,1);
+    let rowStart=new Date(first); rowStart.setDate(first.getDate()-wd(first));
+    const last=new Date(yr,mo+1,0);
+    while(rowStart<=last){
+      const wn=document.createElement('div');wn.className='week-num-cell';wn.textContent=getWeekNumber(rowStart);grid.appendChild(wn);
+      for(let i=0;i<7;i++){
+        const dcur=new Date(rowStart);dcur.setDate(rowStart.getDate()+i);
+        if(dcur.getMonth()===mo)grid.appendChild(buildCell(dcur));
+        else{const e=document.createElement('div');e.className='day-cell out-range'+(i>=5?' we-day':'');grid.appendChild(e);}
+      }
+      rowStart.setDate(rowStart.getDate()+7);
+    }
+    mb.appendChild(grid);
+
+    // Footer
+    const mf=document.createElement('div');mf.className='month-footer';
+    if(after1){
+      const btn=document.createElement('div');btn.className='sgi-protect-toggle';btn.id='sprot-'+mk;
+      btn.innerHTML='🛡️ SGI-skydd (5 dagar/v)';
+      btn.onclick=()=>toggleProtect(mk);
+      mf.appendChild(btn);
+    }
+    const lbl=document.createElement('div');lbl.id='mbar-'+mk;lbl.style.cssText='font-size:.79rem;color:var(--g500)';
+    mf.appendChild(lbl);mb.appendChild(mf);
+    cont.appendChild(mb);
+    cur.setMonth(cur.getMonth()+1);
+  }
+  updateAllMonthTotals();
+  renderSumTable();
+}
+
+// ═══════════════ DAY CELL ════════════════
+function buildCell(date){
+  const d2=ds(date),w=wd(date),isWE=w>=5,hol=isHol(d2),isToday=d2===ds(new Date());
+  const inCalendar=S.calStart&&S.calEnd&&date>=S.calStart&&date<=S.calEnd;
+  const p1a=inCalendar;
+  const p2a=S.numParents===2&&inCalendar;
+  const active=inCalendar;
+
+  const cell=document.createElement('div');
+  cell.className='day-cell'+(isWE?' we-day':'')+(hol?' holiday-cell':'')+(isToday?' today-cell':'')+(active?'':' out-range');
+  cell.id='day-'+d2;
+
+  // Date number row
+  const nr=document.createElement('div');nr.className='day-num-row';
+  const dn=document.createElement('div');dn.className='day-num';
+  const dni=document.createElement('span');dni.className='day-num-inner';dni.textContent=date.getDate();
+  dn.appendChild(dni);nr.appendChild(dn);
+  if(hol){const hn=document.createElement('div');hn.className='hol-name';hn.textContent=hol;hn.title=hol;nr.appendChild(hn);}
+  cell.appendChild(nr);
+
+  if(!active)return cell;
+
+  // Period stripe
+  const stripe=document.createElement('div');
+  stripe.className='period-stripe '+(p1a&&p2a?'ps-both':p1a?'ps-p1':'ps-p2');
+  cell.appendChild(stripe);
+
+  // Parent rows
+  const rows=document.createElement('div');rows.className='p-rows';
+  if(p1a)rows.appendChild(buildParentRow(d2,1));
+  if(p2a)rows.appendChild(buildParentRow(d2,2));
+  cell.appendChild(rows);
+  return cell;
+}
+
+function buildParentRow(d2,p){
+  const row=document.createElement('div');
+  row.className='p-row pr'+p;row.id='pr'+p+'-'+d2;
+  const val=(S.days[d2]||{})['p'+p]||null;
+
+  // Status pill
+  const pill=document.createElement('div');
+  pill.className='p-pill '+(val?('pill-'+val+p):'pill-off');
+  pill.textContent=val?(val==='low'?'LÅG':'SGI'):'–';
+  row.appendChild(pill);
+
+  // Name
+  const nm=document.createElement('div');nm.className='p-name';
+  nm.textContent=S['p'+p].name.slice(0,8);
+  row.appendChild(nm);
+
+  // Buttons
+  const btns=document.createElement('div');btns.className='day-btns';
+  [['SGI','sgi'],['Låg','low'],['–','none']].forEach(([lbl,typ])=>{
+    const b=document.createElement('button');b.className='db';
+    if(typ!=='none'&&val===typ)b.classList.add('active-'+typ+p);
+    if(typ==='none'&&!val)b.classList.add('active-off');
+    b.textContent=lbl;
+    b.onclick=e=>{e.stopPropagation();setDay(d2,p,typ);};
+    btns.appendChild(b);
+  });
+  row.appendChild(btns);
+  return row;
+}
+
+// ═══════════════ SET DAY ═════════════════
+function usedCountsForParent(p,excludeDate=null){
+  const res={sgi:0,low:0};
+  for(const [date,data] of Object.entries(S.days)){
+    if(date===excludeDate)continue;
+    const v=data&&data['p'+p];
+    if(v==='sgi')res.sgi++;
+    else if(v==='low')res.low++;
+  }
+  return res;
+}
+function dayBudgetForParent(p,typ){
+  const parent=S['p'+p]||{};
+  return typ==='sgi'?(parent.sgiDays||0):(parent.lowDays||0);
+}
+function dayTypeLabel(typ){return typ==='sgi'?'SGI-dag':'lägstanivådag';}
+function showDayLimitWarning(p,typ){
+  const parentName=(S['p'+p]&&S['p'+p].name)||('Förälder '+p);
+  const budget=dayBudgetForParent(p,typ);
+  const label=dayTypeLabel(typ);
+  const msg=`⚠️ ${parentName} har redan använt alla ${budget} ${label}${budget===1?'':'ar'}. Ta bort en likadan dag någon annanstans först.`;
+  let w=document.getElementById('limitWarning');
+  if(!w){
+    w=document.createElement('div');
+    w.id='limitWarning';
+    Object.assign(w.style,{position:'fixed',top:'14px',left:'50%',transform:'translateX(-50%) translateY(-8px)',maxWidth:'min(760px,calc(100vw - 28px))',background:'linear-gradient(120deg,#fff1f4,#fff7fb)',color:'var(--r700)',border:'2px solid var(--r300)',borderRadius:'16px',padding:'12px 18px',fontSize:'.92rem',fontWeight:'800',boxShadow:'0 10px 30px rgba(188,10,66,.22)',opacity:'0',transition:'all .22s ease',zIndex:'10000',textAlign:'center',pointerEvents:'none'});
+    document.body.appendChild(w);
+  }
+  w.textContent=msg;
+  w.style.opacity='1';
+  w.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(w._t);
+  w._t=setTimeout(()=>{w.style.opacity='0';w.style.transform='translateX(-50%) translateY(-8px)';},4200);
+}
+function canSetDay(d2,p,typ){
+  if(typ==='none')return true;
+  const current=(S.days[d2]||{})['p'+p]||null;
+  if(current===typ)return true;
+  const used=usedCountsForParent(p,d2);
+  const budget=dayBudgetForParent(p,typ);
+  if((used[typ]||0)>=budget){showDayLimitWarning(p,typ);return false;}
+  return true;
+}
+function setDay(d2,p,typ){
+  if(!canSetDay(d2,p,typ))return;
+  if(!S.days[d2])S.days[d2]={};
+  if(typ==='none'){
+    delete S.days[d2]['p'+p];
+    if(!S.days[d2].p1&&!S.days[d2].p2)delete S.days[d2];
+  } else S.days[d2]['p'+p]=typ;
+  refreshCell(d2);
+  const dt=pd(d2);
+  updateMonthTotals(dt.getFullYear(),dt.getMonth());
+  renderSumTable();
+  updateTracker();
+}
+
+function refreshCell(d2){
+  const old=document.getElementById('day-'+d2);if(!old)return;
+  old.replaceWith(buildCell(pd(d2)));
+}
+function renderAllDays(){
+  let d2=new Date(S.calStart);
+  while(d2<=S.calEnd){refreshCell(ds(d2));d2.setDate(d2.getDate()+1);}
+}
+
+// ═══════════════ SGI PROTECT ═════════════
+function toggleProtect(mk){
+  const [yr,mo]=mk.split('-').map(Number);
+  const btn=document.getElementById('sprot-'+mk);
+  const on=!btn.classList.contains('active');
+  btn.classList.toggle('active',on);
+  const p1s=S.p1.start,p1e=S.p1.end;
+  const dim=new Date(yr,mo+1,0).getDate();
+  for(let d2=1;d2<=dim;d2++){
+    const date=new Date(yr,mo,d2);
+    if(!p1s||!p1e||date<p1s||date>p1e)continue;
+    const d3=ds(date),w=wd(date);
+    if(on){
+      if(w<5||isHol(d3)){
+        const current=(S.days[d3]||{}).p1||null;
+        if(current==='sgi'){
+          // Redan SGI denna dag, ingen extra dag förbrukas.
+        } else if(canSetDay(d3,1,'sgi')){
+          if(!S.days[d3])S.days[d3]={};
+          S.days[d3].p1='sgi';
+        } else {
+          btn.classList.remove('active');
+          break;
+        }
+      }
+    } else {
+      if(S.days[d3]&&S.days[d3].p1){delete S.days[d3].p1;if(!S.days[d3].p2)delete S.days[d3];}
+    }
+    refreshCell(d3);
+  }
+  updateMonthTotals(yr,mo);renderSumTable();updateTracker();
+}
+
+// ═══════════════ MONTH TOTALS ════════════
+function getStats(yr,mo){
+  const dim=new Date(yr,mo+1,0).getDate();
+  let p1s=0,p1l=0,p2s=0,p2l=0;
+  for(let d2=1;d2<=dim;d2++){
+    const data=S.days[ds(new Date(yr,mo,d2))];if(!data)continue;
+    if(data.p1==='sgi')p1s++;else if(data.p1==='low')p1l++;
+    if(data.p2==='sgi')p2s++;else if(data.p2==='low')p2l++;
+  }
+  return{p1s,p1l,p2s,p2l};
+}
+
+function updateMonthTotals(yr,mo){
+  const mk=`${yr}-${mo}`,el=document.getElementById('mtot-'+mk);if(!el)return;
+  const s=getStats(yr,mo);
+  const r1=dayRate(S.p1.sgi),r2=dayRate(S.p2.sgi);
+  const pay1=s.p1s*r1+s.p1l*LOW_DAY,pay2=s.p2s*r2+s.p2l*LOW_DAY;
+  let h=`<div class="p-total-card p1-card"><div class="p-total-name">${S.p1.name}</div><div class="p-total-main">${fmt(pay1)}</div><div class="p-total-net">Netto ca ${fmt(net(pay1,1))}</div><div class="p-total-sub">${s.p1s+s.p1l} dagar (${s.p1s} SGI + ${s.p1l} låg)</div></div>`;
+  if(S.numParents===2)h+=`<div class="p-total-card p2-card"><div class="p-total-name">${S.p2.name}</div><div class="p-total-main">${fmt(pay2)}</div><div class="p-total-net">Netto ca ${fmt(net(pay2,2))}</div><div class="p-total-sub">${s.p2s+s.p2l} dagar (${s.p2s} SGI + ${s.p2l} låg)</div></div>`;
+  h+=`<div class="p-total-grand"><div class="p-total-name">Totalt</div><div class="p-total-main">${fmt(pay1+pay2)}</div><div class="p-total-net">Netto ca ${fmt(net(pay1,1)+net(pay2,2))}</div><div class="p-total-sub">${s.p1s+s.p1l+s.p2s+s.p2l} dagar</div></div>`;
+  el.innerHTML=h;
+  const mb=document.getElementById('mbar-'+mk);if(mb)mb.textContent=`${s.p1s+s.p1l+s.p2s+s.p2l} dagar`;
+}
+
+function updateAllMonthTotals(){
+  if(!S.calStart||!S.calEnd)return;
+  let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1);
+  const e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);
+  while(c<=e){updateMonthTotals(c.getFullYear(),c.getMonth());c.setMonth(c.getMonth()+1);}
+  renderProgress();
+}
+
+// ═══════════════ PROGRESS BARS ═══════════
+function renderProgress(){
+  let p1s=0,p1l=0,p2s=0,p2l=0;
+  for(const d2 of Object.values(S.days)){
+    if(d2.p1==='sgi')p1s++;else if(d2.p1==='low')p1l++;
+    if(d2.p2==='sgi')p2s++;else if(d2.p2==='low')p2l++;
+  }
+  const r1=dayRate(S.p1.sgi),r2=dayRate(S.p2.sgi);
+  const mx1=S.p1.sgiDays+S.p1.lowDays,mx2=S.numParents===2?S.p2.sgiDays+S.p2.lowDays:0;
+  const u1=p1s+p1l,u2=p2s+p2l;
+  let h=`<div class="progress-wrap"><div class="progress-label"><span>${S.p1.name}: ${u1}/${mx1} dagar · ${fmt(p1s*r1+p1l*LOW_DAY)} brutto · netto ca ${fmt(net(p1s*r1+p1l*LOW_DAY,1))}</span><span>${mx1?Math.round(u1/mx1*100):0}%</span></div><div class="progress-bar"><div class="progress-fill fill-p1" style="width:${mx1?Math.min(100,u1/mx1*100):0}%"></div></div></div>`;
+  if(S.numParents===2)h+=`<div class="progress-wrap"><div class="progress-label"><span>${S.p2.name}: ${u2}/${mx2} dagar · ${fmt(p2s*r2+p2l*LOW_DAY)} brutto · netto ca ${fmt(net(p2s*r2+p2l*LOW_DAY,2))}</span><span>${mx2?Math.round(u2/mx2*100):0}%</span></div><div class="progress-bar"><div class="progress-fill fill-p2" style="width:${mx2?Math.min(100,u2/mx2*100):0}%"></div></div></div>`;
+  document.getElementById('totalsBars').innerHTML=h;
+}
+
+// ═══════════════ SUMMARY TABLE ═══════════
+function dayWithPay(days, rate, p){
+  const gross=days*rate;
+  return `${days} <span class="sum-pay">(${fmt(gross)})</span><span class="net-pay">netto ${fmt(net(gross,p))}</span>`;
+}
+function renderSumTable(){
+  const tb=document.getElementById('sumBody');if(!tb)return;
+  tb.innerHTML='';
+  const r1=dayRate(S.p1.sgi),r2=dayRate(S.p2.sgi);
+  ['th1s','th1l','th1p','th2s','th2l','th2p'].forEach((id,i)=>{
+    const el=document.getElementById(id);if(!el)return;
+    const names=[S.p1.name+' SGI',S.p1.name+' Låg',S.p1.name+' Ers. brutto/netto',S.p2.name+' SGI',S.p2.name+' Låg',S.p2.name+' Ers. brutto/netto'];
+    el.textContent=names[i];
+  });
+  if(!S.calStart||!S.calEnd)return;
+  let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1);
+  const e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);
+  let tot={p1s:0,p1l:0,p2s:0,p2l:0,pay1:0,pay2:0};
+  while(c<=e){
+    const s=getStats(c.getFullYear(),c.getMonth());
+    if(s.p1s+s.p1l+s.p2s+s.p2l>0){
+      const pay1=s.p1s*r1+s.p1l*LOW_DAY,pay2=s.p2s*r2+s.p2l*LOW_DAY;
+      const mn=c.toLocaleString('sv-SE',{month:'long',year:'numeric'});
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${mn.charAt(0).toUpperCase()+mn.slice(1)}</td>
+        <td class="num">${dayWithPay(s.p1s,r1,1)}</td><td class="num">${dayWithPay(s.p1l,LOW_DAY,1)}</td><td class="num">${fmtGrossNet(pay1,1)}</td>
+        <td class="num">${S.numParents===2?dayWithPay(s.p2s,r2,2):'–'}</td>
+        <td class="num">${S.numParents===2?dayWithPay(s.p2l,LOW_DAY,2):'–'}</td>
+        <td class="num">${S.numParents===2?fmtGrossNet(pay2,2):'–'}</td>
+        <td class="num">${fmt(pay1+pay2)}<span class="net-pay">netto ${fmt(net(pay1,1)+net(pay2,2))}</span></td>`;
+      tb.appendChild(tr);
+      tot.p1s+=s.p1s;tot.p1l+=s.p1l;tot.p2s+=s.p2s;tot.p2l+=s.p2l;tot.pay1+=pay1;tot.pay2+=pay2;
+    }
+    c.setMonth(c.getMonth()+1);
+  }
+  const tr=document.createElement('tr');tr.className='total-row';
+  tr.innerHTML=`<td>TOTALT</td><td class="num">${dayWithPay(tot.p1s,r1,1)}</td><td class="num">${dayWithPay(tot.p1l,LOW_DAY,1)}</td><td class="num">${fmtGrossNet(tot.pay1,1)}</td>
+    <td class="num">${S.numParents===2?dayWithPay(tot.p2s,r2,2):'–'}</td><td class="num">${S.numParents===2?dayWithPay(tot.p2l,LOW_DAY,2):'–'}</td>
+    <td class="num">${S.numParents===2?fmtGrossNet(tot.pay2,2):'–'}</td><td class="num">${fmt(tot.pay1+tot.pay2)}<span class="net-pay">netto ${fmt(net(tot.pay1,1)+net(tot.pay2,2))}</span></td>`;
+  tb.appendChild(tr);
+}
+
+// ═══════════════ STICKY TRACKER ══════════
+function updateTracker(){
+  const inner=document.getElementById('trackerInner');if(!inner)return;
+  let p1s=0,p1l=0,p2s=0,p2l=0;
+  for(const d2 of Object.values(S.days)){
+    if(d2.p1==='sgi')p1s++;else if(d2.p1==='low')p1l++;
+    if(d2.p2==='sgi')p2s++;else if(d2.p2==='low')p2l++;
+  }
+  const r1=dayRate(S.p1.sgi),r2=dayRate(S.p2.sgi);
+  const rem1s=Math.max(0,S.p1.sgiDays-p1s),rem1l=Math.max(0,S.p1.lowDays-p1l);
+  const rem2s=Math.max(0,S.p2.sgiDays-p2s),rem2l=Math.max(0,S.p2.lowDays-p2l);
+  const u1=p1s+p1l,u2=p2s+p2l,max1=S.p1.sgiDays+S.p1.lowDays,max2=S.p2.sgiDays+S.p2.lowDays;
+  const p2row=S.numParents===2?`
+    <div class="tracker-parent">
+      <span class="t-name">💜 ${S.p2.name}</span>
+      <div class="t-chip tot">Använt: ${u2}/${max2} dagar</div>
+      <div class="t-chip sgi2"><span class="dot7 d-sgi2"></span>SGI: ${p2s} uttag · ${rem2s} kvar</div>
+      <div class="t-chip low2"><span class="dot7 d-low2"></span>Låg: ${p2l} uttag · ${rem2l} kvar</div>
+      <div class="t-chip tot">Summa: ${fmt(p2s*r2+p2l*LOW_DAY)} <small>/ netto ${fmt(net(p2s*r2+p2l*LOW_DAY,2))}</small></div>
+    </div>`:'';
+  inner.innerHTML=`
+    <div class="tracker-title">Fast sammanställning</div>
+    <div class="tracker-parent">
+      <span class="t-name">🌸 ${S.p1.name}</span>
+      <div class="t-chip tot">Använt: ${u1}/${max1} dagar</div>
+      <div class="t-chip sgi1"><span class="dot7 d-sgi1"></span>SGI: ${p1s} uttag · ${rem1s} kvar</div>
+      <div class="t-chip low1"><span class="dot7 d-low1"></span>Låg: ${p1l} uttag · ${rem1l} kvar</div>
+      <div class="t-chip tot">Summa: ${fmt(p1s*r1+p1l*LOW_DAY)} <small>/ netto ${fmt(net(p1s*r1+p1l*LOW_DAY,1))}</small></div>
+    </div>${p2row}`;
+}
+
+// ═══════════════ CLEAR / RESTART ══════════
+function clearCalendarPlanning(skipConfirm=false){
+  const used=Object.keys(S.days||{}).length;
+  if(!used){toast('🧹 Kalendern är redan tom.');return;}
+  if(!skipConfirm){
+    const ok=confirm('Vill du rensa alla inlagda föräldrapenningdagar i kalendern? Grunduppgifter och datum behålls.');
+    if(!ok)return;
+  }
+  S.days={};
+  if(S.calStart&&S.calEnd){
+    renderAllDays();
+    updateAllMonthTotals();
+    renderSumTable();
+  }
+  updateTracker();
+  const box=document.getElementById('autoResultBox');
+  const msg=document.getElementById('autoResultMsg');
+  if(box&&msg&&!box.classList.contains('hidden')){
+    msg.innerHTML='🧹 <strong>Planeringen är rensad.</strong> Grunduppgifter och ledighetsperioder finns kvar.';
+  }
+  toast('🧹 Alla inlagda dagar är rensade.');
+}
+
+function resetInputValue(id,value=''){const el=document.getElementById(id);if(el)el.value=value;}
+function resetCheckbox(id,checked=false){const el=document.getElementById(id);if(el)el.checked=checked;}
+
+function startOverPlanning(){
+  const hasData=Object.keys(S.days||{}).length||S.numParents||document.getElementById('p1name').value||document.getElementById('p2name').value;
+  if(hasData){
+    const ok=confirm('Vill du starta om helt? Alla grunduppgifter, datum och inlagda dagar tas bort.');
+    if(!ok)return;
+  }
+
+  S.numParents=0;
+  S.p1={name:'Förälder 1',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null};
+  S.p2={name:'Förälder 2',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null};
+  S.birth=null;
+  S.days={};
+  S.calStart=null;
+  S.calEnd=null;
+  S.autoInfo=null;
+  allHols={};
+
+  ['birthDate','p1name','p1sgi','p1start','p1end','p2name','p2sgi','p2start','p2end'].forEach(id=>resetInputValue(id,''));
+  resetInputValue('p1tax','30');
+  resetInputValue('p2tax','30');
+  resetInputValue('p1xfer','0');
+  resetInputValue('p2xfer','0');
+  resetCheckbox('p1w240',false);
+  resetCheckbox('p2w240',false);
+  resetCheckbox('autoDistrib',false);
+  resetCheckbox('asProt1',true);
+  resetCheckbox('asProt2',true);
+
+  document.querySelectorAll('#step1 .toggle-btn').forEach(b=>b.classList.remove('selected'));
+  const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.add('hidden');
+  const autoBox=document.getElementById('autoResultBox');if(autoBox)autoBox.classList.add('hidden');
+  const cal=document.getElementById('calSection');if(cal)cal.classList.add('hidden');
+  const tracker=document.getElementById('stickyTracker');if(tracker)tracker.classList.remove('visible');
+  const trackerInner=document.getElementById('trackerInner');if(trackerInner)trackerInner.innerHTML='';
+  const months=document.getElementById('calMonths');if(months)months.innerHTML='';
+  const sum=document.getElementById('sumBody');if(sum)sum.innerHTML='';
+  const bars=document.getElementById('totalsBars');if(bars)bars.innerHTML='';
+  const xfer=document.getElementById('xferResult');if(xfer)xfer.innerHTML='';
+  ['p1xferHint','p2xferHint','autoPreview'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
+
+  updateLegend();
+  updateDaysGrid();
+  goStep(1);
+  const setup=document.getElementById('setupPanel');if(setup)setup.scrollIntoView({behavior:'smooth',block:'start'});
+  toast('🔄 Planeringen har startats om.');
+}
+
+// ═══════════════ SAVE / LOAD ══════════════
+function savePlan(){
+  syncStateFromForm();
+  updateTransfer(false);
+  if(!validateBeforeSave())return;
+  const fv={
+    birthDate:document.getElementById('birthDate').value,
+    p1name:document.getElementById('p1name').value,p1sgi:document.getElementById('p1sgi').value,p1tax:document.getElementById('p1tax').value,
+    p1start:document.getElementById('p1start').value,p1end:document.getElementById('p1end').value,
+    p1w240:document.getElementById('p1w240').checked,
+    p2name:document.getElementById('p2name').value,p2sgi:document.getElementById('p2sgi').value,p2tax:document.getElementById('p2tax').value,
+    p2start:document.getElementById('p2start').value,p2end:document.getElementById('p2end').value,
+    p2w240:document.getElementById('p2w240').checked,
+    p1xfer:document.getElementById('p1xfer').value,p2xfer:document.getElementById('p2xfer').value,
+    autoDistrib:document.getElementById('autoDistrib').checked,
+    asProt1:document.getElementById('asProt1').checked,asProt2:document.getElementById('asProt2').checked
+  };
+  const sv={version:9,savedAt:new Date().toISOString(),fv,
+    state:{numParents:S.numParents,
+      p1:{...S.p1,start:iso(S.p1.start),end:iso(S.p1.end)},
+      p2:{...S.p2,start:iso(S.p2.start),end:iso(S.p2.end)},
+      birth:iso(S.birth),calStart:iso(S.calStart),calEnd:iso(S.calEnd),
+      days:S.days,autoInfo:S.autoInfo||null}};
+  const blob=new Blob([JSON.stringify(sv,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const n1=(S.p1.name||'F1').replace(/[^\wåäöÅÄÖ]/g,'_');
+  const n2=S.numParents===2?'_'+(S.p2.name||'F2').replace(/[^\wåäöÅÄÖ]/g,'_'):'';
+  a.href=url;a.download=`foraldraplan_${n1}${n2}_${ds(new Date())}.fpplan`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('💾 Planering sparad!');
+}
+
+function loadPlan(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.fv||!data.state){alert('Ogiltig fil');return;}
+      applyPlan(data);
+    }catch{alert('Kunde inte läsa filen');}
+    ev.target.value='';
+  };
+  rd.readAsText(file);
+}
+
+function applyPlan(data){
+  const fv=data.fv||{},sv=data.state||{};
+  const np=sv.numParents||data.numParents||1;
+  selectParents(np===2?2:1);
+
+  document.getElementById('birthDate').value=fv.birthDate||sv.birth||'';
+  document.getElementById('p1name').value=fv.p1name||sv.p1?.name||'';updateParentName(1);
+  document.getElementById('p1sgi').value=fv.p1sgi??sv.p1?.sgi??'';
+  document.getElementById('p1tax').value=fv.p1tax??sv.p1?.tax??30;
+  document.getElementById('p1start').value=fv.p1start||sv.p1?.start||'';
+  document.getElementById('p1end').value=fv.p1end||sv.p1?.end||'';
+  document.getElementById('p1w240').checked=!!fv.p1w240;
+
+  document.getElementById('p2name').value=fv.p2name||sv.p2?.name||'';updateParentName(2);
+  document.getElementById('p2sgi').value=fv.p2sgi??sv.p2?.sgi??'';
+  document.getElementById('p2tax').value=fv.p2tax??sv.p2?.tax??30;
+  document.getElementById('p2start').value=fv.p2start||sv.p2?.start||'';
+  document.getElementById('p2end').value=fv.p2end||sv.p2?.end||'';
+  document.getElementById('p2w240').checked=!!fv.p2w240;
+
+  document.getElementById('p1xfer').value=fv.p1xfer??0;
+  document.getElementById('p2xfer').value=fv.p2xfer??0;
+  document.getElementById('autoDistrib').checked=!!fv.autoDistrib;
+  document.getElementById('asProt1').checked=fv.asProt1!==false;
+  document.getElementById('asProt2').checked=fv.asProt2!==false;
+
+  S.numParents=np===2?2:1;
+  Object.assign(S.p1,{name:'Förälder 1',sgi:0,tax:30,sgiDays:S.numParents===1?390:195,lowDays:S.numParents===1?90:45,start:null,end:null},sv.p1||{});
+  Object.assign(S.p2,{name:'Förälder 2',sgi:0,tax:30,sgiDays:S.numParents===1?0:195,lowDays:S.numParents===1?0:45,start:null,end:null},sv.p2||{});
+  syncStateFromForm();
+
+  // Räkna om dagpott från överlåtelsefält om de finns. En-förälder-läge skyddas i updateTransfer().
+  updateTransfer(false);
+  S.days=normalizeDaysObject(sv.days||{});
+  S.autoInfo=sv.autoInfo||null;
+  S.birth=pd(fv.birthDate||sv.birth||'');
+
+  const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.toggle('hidden',!document.getElementById('autoDistrib').checked);
+  const asProt2Row=document.getElementById('asProt2Row');if(asProt2Row)asProt2Row.style.display=S.numParents===2?'':'none';
+
+  if(S.p1.start&&S.p1.end){
+    let cS=new Date(S.p1.start),cE=new Date(S.p1.end);
+    if(S.numParents===2){
+      if(S.p2.start&&S.p2.start<cS)cS=new Date(S.p2.start);
+      if(S.p2.end&&S.p2.end>cE)cE=new Date(S.p2.end);
+    }
+    S.calStart=cS;S.calEnd=cE;
+    allHols={};loadHols(cS,cE);pruneDaysOutsideCalendar();updateLegend();
+    renderCalendar();
+    document.getElementById('calSection').classList.remove('hidden');
+    document.getElementById('stickyTracker').classList.add('visible');
+    if(fv.autoDistrib){
+      document.getElementById('autoResultBox').classList.remove('hidden');
+      document.getElementById('autoResultMsg').innerHTML='✅ <strong>Planering laddad!</strong>';
+    }else{
+      document.getElementById('autoResultBox').classList.add('hidden');
+    }
+    goStep(4);
+    setTimeout(()=>document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  } else goStep(2);
+  updateTracker();
+  warnIfPlanExceedsBudget();
+  toast('📂 Planering laddad!');
+}
+
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';Object.assign(t.style,{position:'fixed',bottom:'28px',left:'50%',transform:'translateX(-50%) translateY(20px)',background:'var(--g900)',color:'white',padding:'11px 22px',borderRadius:'30px',fontSize:'.9rem',fontWeight:'700',boxShadow:'0 8px 24px rgba(0,0,0,.2)',opacity:'0',transition:'all .3s ease',zIndex:'9999',pointerEvents:'none',whiteSpace:'nowrap'});document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},2800);
+}
+
+
+// ═══════════════ EXTENDED MULTI-PERSON SUPPORT ═══════════════
+// Version v5: kvarvarande dagar kan anges per person och extra personer kan läggas till.
+const MAX_PERSONS=6;
+const PERSON_ICONS={1:'🌸',2:'💜',3:'🩵',4:'💚',5:'🧡',6:'💛'};
+const PERSON_CARD_LABEL={1:'Förälder 1',2:'Förälder 2',3:'Extra person 1',4:'Extra person 2',5:'Extra person 3',6:'Extra person 4'};
+S.extraPersons=S.extraPersons||0;
+S.manualRemaining=!!S.manualRemaining;
+for(let p=3;p<=MAX_PERSONS;p++){
+  if(!S['p'+p])S['p'+p]={name:PERSON_CARD_LABEL[p],sgi:0,tax:30,sgiDays:0,lowDays:0,start:null,end:null};
+}
+function totalPersons(){return Math.max(0,(S.numParents||0)+(S.extraPersons||0));}
+function activeParents(){const n=totalPersons();const arr=[];for(let p=1;p<=n;p++)arr.push(p);return arr;}
+function extraParentCount(){return S.extraPersons||0;}
+function ensurePersonState(p){if(!S['p'+p])S['p'+p]={name:PERSON_CARD_LABEL[p]||('Person '+p),sgi:0,tax:30,sgiDays:0,lowDays:0,start:null,end:null};return S['p'+p];}
+function defaultBudgetFor(p,typ){
+  if(p===1){return S.numParents===1?(typ==='sgi'?390:90):(typ==='sgi'?195:45);}
+  if(p===2){return S.numParents===2?(typ==='sgi'?195:45):0;}
+  return 0;
+}
+function getDefaultBudgets(){
+  const b={};
+  for(let p=1;p<=MAX_PERSONS;p++)b[p]={sgi:defaultBudgetFor(p,'sgi'),low:defaultBudgetFor(p,'low')};
+  if(S.numParents===2){
+    const t1=parseInt(getInputValue('p1xfer'))||0,t2=parseInt(getInputValue('p2xfer'))||0;
+    const c1=Math.min(Math.max(0,t1),150),c2=Math.min(Math.max(0,t2),150);
+    const s1=Math.min(c1,105),l1=c1-s1,s2=Math.min(c2,105),l2=c2-s2;
+    b[1].sgi=195-s1+s2;b[1].low=45-l1+l2;
+    b[2].sgi=195-s2+s1;b[2].low=45-l2+l1;
+  }
+  return b;
+}
+function syncRemainingInputsFromState(){
+  const grid=document.getElementById('remainingGrid');if(!grid)return;
+  for(const p of activeParents()){
+    const s=document.getElementById('p'+p+'remSgi'),l=document.getElementById('p'+p+'remLow');
+    if(s)s.value=ensurePersonState(p).sgiDays||0;
+    if(l)l.value=ensurePersonState(p).lowDays||0;
+  }
+}
+function setBudgetsFromDefault(force=false){
+  if(S.manualRemaining&&!force)return;
+  const b=getDefaultBudgets();
+  for(let p=1;p<=MAX_PERSONS;p++){ensurePersonState(p).sgiDays=b[p].sgi;ensurePersonState(p).lowDays=b[p].low;}
+  syncRemainingInputsFromState();
+}
+function renderExtraPersonCards(){
+  const box=document.getElementById('extraParentCards');if(!box)return;
+  let html='';
+  for(let p=3;p<=totalPersons();p++){
+    const person=ensurePersonState(p);
+    html+=`<div class="parent-card p${p}" id="p${p}card">
+      <h3>${PERSON_ICONS[p]||'👤'} ${PERSON_CARD_LABEL[p]}</h3>
+      <div class="form-group"><label>Namn</label><input type="text" id="p${p}name" placeholder="T.ex. Mormor" value="${(person.name||'').replaceAll('"','&quot;')}" oninput="updateParentName(${p})"></div>
+      <div class="form-group" style="margin-top:10px"><label>SGI (kr/år)</label><input type="number" id="p${p}sgi" placeholder="T.ex. 360 000" min="0" value="${person.sgi||''}"><span class="form-hint">Ersättningen baseras på personens egen SGI.</span></div>
+      <div class="form-group" style="margin-top:10px"><label>Skattesats (%)</label><input type="text" id="p${p}tax" value="${person.tax??30}" placeholder="T.ex. 32,38" oninput="updateTaxFromInputs()"></div>
+      <div class="form-grid" style="margin-top:10px"><div class="form-group"><label>Ledighetsstart</label><input type="date" id="p${p}start" value="${iso(person.start)}"></div><div class="form-group"><label>Ledighetsslutt</label><input type="date" id="p${p}end" value="${iso(person.end)}"></div></div>
+      <div class="btn-actions" style="margin-top:10px"><button type="button" class="btn btn-secondary" style="font-size:.75rem;padding:6px 12px" onclick="removeExtraPerson(${p})">Ta bort person</button></div>
+    </div>`;
+  }
+  box.innerHTML=html;
+}
+function renderRemainingInputs(){
+  const grid=document.getElementById('remainingGrid');if(!grid)return;
+  let html='';
+  for(const p of activeParents()){
+    const person=ensurePersonState(p);
+    html+=`<div class="remaining-card"><h4>${PERSON_ICONS[p]||'👤'} ${person.name||PERSON_CARD_LABEL[p]}</h4><div class="remaining-inputs">
+      <div><label style="font-size:.68rem;font-weight:800;color:var(--g500)">SGI kvar</label><input type="number" id="p${p}remSgi" min="0" step="1" value="${person.sgiDays||0}" oninput="setRemainingDaysFromInputs(true)"></div>
+      <div><label style="font-size:.68rem;font-weight:800;color:var(--g500)">Låg kvar</label><input type="number" id="p${p}remLow" min="0" step="1" value="${person.lowDays||0}" oninput="setRemainingDaysFromInputs(true)"></div>
+    </div></div>`;
+  }
+  grid.innerHTML=html;
+}
+function setRemainingDaysFromInputs(markManual=true){
+  if(markManual)S.manualRemaining=true;
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p);
+    const s=document.getElementById('p'+p+'remSgi'),l=document.getElementById('p'+p+'remLow');
+    if(s)ps.sgiDays=Math.max(0,parseInt(s.value)||0);
+    if(l)ps.lowDays=Math.max(0,parseInt(l.value)||0);
+  }
+  updateDaysGrid();updateAllMonthTotals();renderSumTable();updateTracker();warnIfPlanExceedsBudget();
+}
+function resetRemainingToDefault(){S.manualRemaining=false;setBudgetsFromDefault(true);renderRemainingInputs();updateDaysGrid();updateTracker();toast('↩️ Kvarvarande dagar återställda till standard.');}
+function addExtraPerson(){
+  if((S.numParents||0)===0){alert('Välj först om planeringen gäller en eller två föräldrar.');return;}
+  if(totalPersons()>=MAX_PERSONS){alert('Max '+MAX_PERSONS+' personer stöds i denna version.');return;}
+  S.extraPersons=(S.extraPersons||0)+1;
+  const p=totalPersons();ensurePersonState(p);S['p'+p].name=PERSON_CARD_LABEL[p]||('Person '+p);S['p'+p].tax=30;S['p'+p].sgiDays=0;S['p'+p].lowDays=0;
+  renderExtraPersonCards();renderRemainingInputs();updateDaysGrid();toast('➕ Extra person tillagd. Ange dagar kvar i nästa steg.');
+}
+function removeExtraPerson(p){
+  if(p<=S.numParents)return;
+  if(Object.values(S.days||{}).some(row=>row&&row['p'+p])){if(!confirm('Personen har dagar i kalendern. Ta bort personen och dessa dagar?'))return;}
+  const n=totalPersons();
+  for(const date of Object.keys(S.days||{})){delete S.days[date]['p'+p];if(!Object.keys(S.days[date]).length)delete S.days[date];}
+  for(let i=p;i<n;i++){S['p'+i]={...ensurePersonState(i+1)};}
+  S['p'+n]={name:PERSON_CARD_LABEL[n],sgi:0,tax:30,sgiDays:0,lowDays:0,start:null,end:null};
+  S.extraPersons=Math.max(0,(S.extraPersons||0)-1);
+  renderExtraPersonCards();renderRemainingInputs();renderCalendarIfReady();updateDaysGrid();updateTracker();toast('Personen är borttagen.');
+}
+function renderCalendarIfReady(){if(S.calStart&&S.calEnd){renderCalendar();}}
+// Override selectParents to keep extra-person state and manual remaining days.
+selectParents=function(n){
+  S.numParents=n;
+  S.extraPersons=S.extraPersons||0;
+  document.querySelectorAll('#step1 .toggle-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
+  document.getElementById('p2card').style.display=n===2?'':'none';
+  document.getElementById('xferSection').style.display=n===2?'':'none';
+  ['leg2Wrap','leg2bWrap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=n===2?'':'none';});
+  if(n===1){S.p2.sgiDays=0;S.p2.lowDays=0;}
+  setBudgetsFromDefault(false);
+  renderExtraPersonCards();renderRemainingInputs();updateDaysGrid();goStep(2);
+};
+goStep=function(n){
+  [1,2,3,4].forEach(i=>{document.getElementById('step'+i).classList.add('hidden');const d=document.getElementById('s'+i+'d');d.classList.remove('active','done');if(i<n)d.classList.add('done');else if(i===n)d.classList.add('active');});
+  document.getElementById('step'+n).classList.remove('hidden');
+  if(n===3){syncStateFromForm();updateTransfer(false);renderRemainingInputs();updateDaysGrid();warnIfPlanExceedsBudget();}
+};
+updateParentName=function(p){
+  ensurePersonState(p).name=getInputValue('p'+p+'name').trim()||PERSON_CARD_LABEL[p]||('Person '+p);
+  const as=document.getElementById('asSgiLbl'+p);if(as)as.textContent=S['p'+p].name;
+  renderRemainingInputs();updateLegend();updateTracker();
+};
+updateLegend=function(){
+  const e1=document.getElementById('leg1'),e1b=document.getElementById('leg1b');if(e1)e1.textContent=S.p1.name+' ';if(e1b)e1b.textContent=S.p1.name+' ';
+  const e2=document.getElementById('leg2'),e2b=document.getElementById('leg2b');if(e2)e2.textContent=S.p2.name+' ';if(e2b)e2b.textContent=S.p2.name+' ';
+};
+updateTaxFromInputs=function(){
+  for(const p of activeParents()){const e=document.getElementById('p'+p+'tax');if(e)ensurePersonState(p).tax=parsePct(e.value);}
+  updateDaysGrid();updateAllMonthTotals();renderSumTable();updateTracker();
+};
+syncStateFromForm=function(){
+  S.birth=pd(getInputValue('birthDate'));
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p);
+    ps.name=getInputValue('p'+p+'name').trim()||PERSON_CARD_LABEL[p]||('Person '+p);
+    ps.sgi=parseFloat(getInputValue('p'+p+'sgi'))||0;
+    ps.tax=parsePct(getInputValue('p'+p+'tax'));
+    ps.start=pd(getInputValue('p'+p+'start'));
+    ps.end=pd(getInputValue('p'+p+'end'));
+  }
+  setRemainingDaysFromInputs(false);
+};
+normalizeDaysObject=function(days){
+  const out={};const act=activeParents();
+  for(const [date,data] of Object.entries(days||{})){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!data)continue;
+    const row={};
+    for(const p of act){const v=data['p'+p];if(v==='sgi'||v==='low')row['p'+p]=v;}
+    if(Object.keys(row).length)out[date]=row;
+  }
+  return out;
+};
+budgetOverflowMessages=function(){
+  const msgs=[];
+  for(const p of activeParents()){
+    const used=usedCountsForParent(p), name=ensurePersonState(p).name||('Person '+p);
+    if(used.sgi>dayBudgetForParent(p,'sgi'))msgs.push(`${name}: ${used.sgi} SGI-dagar används men bara ${dayBudgetForParent(p,'sgi')} finns tillgängliga.`);
+    if(used.low>dayBudgetForParent(p,'low'))msgs.push(`${name}: ${used.low} lägstanivådagar används men bara ${dayBudgetForParent(p,'low')} finns tillgängliga.`);
+  }
+  return msgs;
+};
+updateDaysGrid=function(){
+  const g=document.getElementById('daysGrid');if(!g)return;
+  let h='';
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p),r=dayRate(ps.sgi||0);
+    h+=`<div class="days-chip"><div class="chip-label">${PERSON_ICONS[p]||'👤'} ${ps.name} SGI-dagar</div><div class="chip-val">${ps.sgiDays||0}</div><div class="chip-sub">~${fmt(r)} /dag · netto ${fmt(net(r,p))}</div></div>`;
+    h+=`<div class="days-chip"><div class="chip-label">${PERSON_ICONS[p]||'👤'} ${ps.name} Lägstanivå</div><div class="chip-val">${ps.lowDays||0}</div><div class="chip-sub">${fmt(LOW_DAY)} /dag · netto ${fmt(net(LOW_DAY,p))}</div></div>`;
+  }
+  g.innerHTML=h;
+};
+updateTransfer=function(showWarnings=true){
+  if(S.numParents!==2){ if(!S.manualRemaining){setBudgetsFromDefault(true);} const r=document.getElementById('xferResult');if(r)r.innerHTML=''; updateDaysGrid(); if(showWarnings)warnIfPlanExceedsBudget(); return; }
+  const t1=parseInt(getInputValue('p1xfer'))||0,t2=parseInt(getInputValue('p2xfer'))||0;
+  const MAX=150,c1=Math.min(Math.max(0,t1),MAX),c2=Math.min(Math.max(0,t2),MAX);
+  const e1=document.getElementById('p1xfer'),e2=document.getElementById('p2xfer');if(e1&&t1!==c1)e1.value=c1;if(e2&&t2!==c2)e2.value=c2;
+  const h1=document.getElementById('p1xferHint'),h2=document.getElementById('p2xferHint');if(h1)h1.textContent=`Max ${MAX} dagar`;if(h2)h2.textContent=`Max ${MAX} dagar`;
+  if(!S.manualRemaining){setBudgetsFromDefault(true);} 
+  const r=document.getElementById('xferResult');if(r){r.innerHTML=(c1>0||c2>0)?`<div class="info-box">📊 <strong>Efter överlåtelse:</strong><br>${S.p1.name}: ${S.p1.sgiDays} SGI + ${S.p1.lowDays} låg<br>${S.p2.name}: ${S.p2.sgiDays} SGI + ${S.p2.lowDays} låg</div>`:'';}
+  renderRemainingInputs();updateDaysGrid();if(showWarnings)warnIfPlanExceedsBudget();
+};
+// Person-specific tax/net overrides
+function taxPct(p){return parsePct((ensurePersonState(p).tax));}
+function net(amount,p){return amount*(1-taxPct(p)/100);}
+// Generic calendar rendering
+buildCell=function(date){
+  const d2=ds(date),w=wd(date),isWE=w>=5,hol=isHol(d2),isToday=d2===ds(new Date());
+  const inCalendar=S.calStart&&S.calEnd&&date>=S.calStart&&date<=S.calEnd;
+  const persons=activeParents();
+  const cell=document.createElement('div');cell.className='day-cell'+(isWE?' we-day':'')+(hol?' holiday-cell':'')+(isToday?' today-cell':'')+(inCalendar?'':' out-range');cell.id='day-'+d2;
+  const nr=document.createElement('div');nr.className='day-num-row';const dn=document.createElement('div');dn.className='day-num';const dni=document.createElement('span');dni.className='day-num-inner';dni.textContent=date.getDate();dn.appendChild(dni);nr.appendChild(dn);if(hol){const hn=document.createElement('div');hn.className='hol-name';hn.textContent=hol;hn.title=hol;nr.appendChild(hn);}cell.appendChild(nr);
+  if(!inCalendar)return cell;
+  const stripe=document.createElement('div');stripe.className='period-stripe ps-both';cell.appendChild(stripe);
+  const rows=document.createElement('div');rows.className='p-rows';for(const p of persons)rows.appendChild(buildParentRow(d2,p));cell.appendChild(rows);return cell;
+};
+setDay=function(d2,p,typ){
+  if(!canSetDay(d2,p,typ))return;
+  if(!S.days[d2])S.days[d2]={};
+  if(typ==='none'){delete S.days[d2]['p'+p];if(!Object.keys(S.days[d2]).length)delete S.days[d2];}
+  else S.days[d2]['p'+p]=typ;
+  refreshCell(d2);const dt=pd(d2);updateMonthTotals(dt.getFullYear(),dt.getMonth());renderSumTable();updateTracker();
+};
+function getStatsGeneric(yr,mo){
+  const dim=new Date(yr,mo+1,0).getDate();const res={};for(const p of activeParents())res[p]={sgi:0,low:0};
+  for(let d2=1;d2<=dim;d2++){const data=S.days[ds(new Date(yr,mo,d2))];if(!data)continue;for(const p of activeParents()){const v=data['p'+p];if(v==='sgi')res[p].sgi++;else if(v==='low')res[p].low++;}}
+  return res;
+}
+getStats=function(yr,mo){const g=getStatsGeneric(yr,mo);return{p1s:g[1]?.sgi||0,p1l:g[1]?.low||0,p2s:g[2]?.sgi||0,p2l:g[2]?.low||0,_all:g};};
+updateMonthTotals=function(yr,mo){
+  const mk=`${yr}-${mo}`,el=document.getElementById('mtot-'+mk);if(!el)return;const st=getStatsGeneric(yr,mo);let h='',grossTot=0,netTot=0,daysTot=0;
+  for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),sgi=st[p].sgi,low=st[p].low,pay=sgi*r+low*LOW_DAY;grossTot+=pay;netTot+=net(pay,p);daysTot+=sgi+low;h+=`<div class="p-total-card p${p}-card"><div class="p-total-name">${ps.name}</div><div class="p-total-main">${fmt(pay)}</div><div class="p-total-net">Netto ca ${fmt(net(pay,p))}</div><div class="p-total-sub">${sgi+low} dagar (${sgi} SGI + ${low} låg)</div></div>`;}
+  h+=`<div class="p-total-grand"><div class="p-total-name">Totalt</div><div class="p-total-main">${fmt(grossTot)}</div><div class="p-total-net">Netto ca ${fmt(netTot)}</div><div class="p-total-sub">${daysTot} dagar</div></div>`;el.innerHTML=h;const mb=document.getElementById('mbar-'+mk);if(mb)mb.textContent=`${daysTot} dagar`;
+};
+renderProgress=function(){
+  const totals={};for(const p of activeParents())totals[p]={sgi:0,low:0};
+  for(const row of Object.values(S.days)){for(const p of activeParents()){if(row['p'+p]==='sgi')totals[p].sgi++;else if(row['p'+p]==='low')totals[p].low++;}}
+  let h='';for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),u=totals[p].sgi+totals[p].low,mx=(ps.sgiDays||0)+(ps.lowDays||0),pay=totals[p].sgi*r+totals[p].low*LOW_DAY;h+=`<div class="progress-wrap"><div class="progress-label"><span>${ps.name}: ${u}/${mx} dagar · ${fmt(pay)} brutto · netto ca ${fmt(net(pay,p))}</span><span>${mx?Math.round(u/mx*100):0}%</span></div><div class="progress-bar"><div class="progress-fill fill-p${p>2?2:p}" style="width:${mx?Math.min(100,u/mx*100):0}%"></div></div></div>`;}
+  const el=document.getElementById('totalsBars');if(el)el.innerHTML=h;
+};
+renderSumTable=function(){
+  const table=document.querySelector('.sum-table');const tb=document.getElementById('sumBody');if(!table||!tb)return;
+  const thead=table.querySelector('thead');let head='<tr><th>Månad</th>';for(const p of activeParents()){const name=ensurePersonState(p).name;head+=`<th style="text-align:right">${name} SGI</th><th style="text-align:right">${name} Låg</th><th style="text-align:right">${name} Ers. brutto/netto</th>`;}head+='<th style="text-align:right">Totalt</th></tr>';thead.innerHTML=head;tb.innerHTML='';
+  if(!S.calStart||!S.calEnd)return;let c=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),e=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);const tot={};for(const p of activeParents())tot[p]={sgi:0,low:0,pay:0};
+  while(c<=e){const st=getStatsGeneric(c.getFullYear(),c.getMonth());let monthDays=0,gross=0,netto=0,cells='';for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),sgi=st[p].sgi,low=st[p].low,pay=sgi*r+low*LOW_DAY;monthDays+=sgi+low;gross+=pay;netto+=net(pay,p);tot[p].sgi+=sgi;tot[p].low+=low;tot[p].pay+=pay;cells+=`<td class="num">${dayWithPay(sgi,r,p)}</td><td class="num">${dayWithPay(low,LOW_DAY,p)}</td><td class="num">${fmtGrossNet(pay,p)}</td>`;}if(monthDays>0){const mn=c.toLocaleString('sv-SE',{month:'long',year:'numeric'});const tr=document.createElement('tr');tr.innerHTML=`<td>${mn.charAt(0).toUpperCase()+mn.slice(1)}</td>${cells}<td class="num">${fmt(gross)}<span class="net-pay">netto ${fmt(netto)}</span></td>`;tb.appendChild(tr);}c.setMonth(c.getMonth()+1);}
+  let cells='',gross=0,netto=0;for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),pay=tot[p].pay;gross+=pay;netto+=net(pay,p);cells+=`<td class="num">${dayWithPay(tot[p].sgi,r,p)}</td><td class="num">${dayWithPay(tot[p].low,LOW_DAY,p)}</td><td class="num">${fmtGrossNet(pay,p)}</td>`;}const tr=document.createElement('tr');tr.className='total-row';tr.innerHTML=`<td>TOTALT</td>${cells}<td class="num">${fmt(gross)}<span class="net-pay">netto ${fmt(netto)}</span></td>`;tb.appendChild(tr);
+};
+updateTracker=function(){
+  const inner=document.getElementById('trackerInner');if(!inner)return;const counts={};for(const p of activeParents())counts[p]={sgi:0,low:0};for(const row of Object.values(S.days)){for(const p of activeParents()){if(row['p'+p]==='sgi')counts[p].sgi++;else if(row['p'+p]==='low')counts[p].low++;}}
+  let html='<div class="tracker-title">Fast sammanställning</div>';
+  for(const p of activeParents()){const ps=ensurePersonState(p),r=dayRate(ps.sgi),remS=Math.max(0,(ps.sgiDays||0)-counts[p].sgi),remL=Math.max(0,(ps.lowDays||0)-counts[p].low),u=counts[p].sgi+counts[p].low,max=(ps.sgiDays||0)+(ps.lowDays||0),pay=counts[p].sgi*r+counts[p].low*LOW_DAY;html+=`<div class="tracker-parent"><span class="t-name">${PERSON_ICONS[p]||'👤'} ${ps.name}</span><div class="t-chip tot">Använt: ${u}/${max} dagar</div><div class="t-chip sgi${p}"><span class="dot7 d-sgi${p}"></span>SGI: ${counts[p].sgi} uttag · ${remS} kvar</div><div class="t-chip low${p}"><span class="dot7 d-low${p}"></span>Låg: ${counts[p].low} uttag · ${remL} kvar</div><div class="t-chip tot">Summa: ${fmt(pay)} <small>/ netto ${fmt(net(pay,p))}</small></div></div>`;}
+  inner.innerHTML=html;
+};
+// Generic build calendar and auto distribution
+buildCalendar=function(){
+  syncStateFromForm();updateTransfer(false);setRemainingDaysFromInputs(false);
+  const aps=activeParents();for(const p of aps){const ps=ensurePersonState(p);if(!ps.start||!ps.end){alert('Ange ledighetsperiod för '+ps.name);return;}if(ps.start>ps.end){alert('Slutdatum före startdatum för '+ps.name);return;}}
+  let cS=new Date(aps.map(p=>S['p'+p].start).sort((a,b)=>a-b)[0]),cE=new Date(aps.map(p=>S['p'+p].end).sort((a,b)=>b-a)[0]);S.calStart=cS;S.calEnd=cE;allHols={};loadHols(cS,cE);pruneDaysOutsideCalendar();updateLegend();
+  if(document.getElementById('autoDistrib').checked){runAutoDistrib();document.getElementById('autoResultBox').classList.remove('hidden');document.getElementById('autoResultMsg').innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;}else document.getElementById('autoResultBox').classList.add('hidden');
+  renderCalendar();document.getElementById('calSection').classList.remove('hidden');document.getElementById('stickyTracker').classList.add('visible');document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'});goStep(4);updateTracker();
+};
+// A generalized version of the previous optimizer. Same technique, but loops over all active persons.
+runAutoDistrib=function(){
+  S.days={};const parents=activeParents();S.autoInfo={warnings:[],exact:true,allocated:{},targetNote:''};for(const p of parents)S.autoInfo.allocated[p]={sgi:0,low:0};
+  const birth=S.birth,bp1=birth?new Date(birth.getFullYear()+1,birth.getMonth(),birth.getDate()):null;const rate={},budget={};for(const p of parents){const ps=ensurePersonState(p);rate[p]=dayRate(ps.sgi);budget[p]={sgi:ps.sgiDays||0,low:ps.lowDays||0};}
+  const GATE=180,mkOf=d=>`${d.getFullYear()}-${d.getMonth()}`,daySlotKey=sl=>`${sl.p}|${sl.ds}`,inPeriod=(p,d)=>{const ps=S['p'+p];return ps.start&&ps.end&&d>=ps.start&&d<=ps.end;},nonWork=d=>wd(d)>=5||!!isHol(ds(d));
+  function isoWeekKey(date){return date.getFullYear()+'-W'+String(getWeekNumber(date)).padStart(2,'0');}function monthStartFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m,1);}function monthEndFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m+1,0);}
+  const slots=[];let ord=0,d=new Date(S.calStart);while(d<=S.calEnd){for(const p of parents){if(inPeriod(p,d)){slots.push({p,ds:ds(d),date:new Date(d),mk:mkOf(d),week:isoWeekKey(d),weekday:wd(d),nonWork:nonWork(d),order:ord++});}}d.setDate(d.getDate()+1);}slots.sort((a,b)=>a.date-b.date||a.p-b.p);if(!slots.length)return;
+  const monthKeys=[];let mc=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),lastM=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);while(mc<=lastM){monthKeys.push(mkOf(mc));mc.setMonth(mc.getMonth()+1);}const slotsBy={};for(const mk of monthKeys){slotsBy[mk]={};for(const p of parents)slotsBy[mk][p]=[];}for(const sl of slots){if(slotsBy[sl.mk])slotsBy[sl.mk][sl.p].push(sl);}
+  for(const p of parents){const cap=slots.filter(sl=>sl.p===p).length,need=budget[p].sgi+budget[p].low;if(need>cap){S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: perioden rymmer bara ${cap} kalenderdagar, men ${need} dagar ska fördelas.`);const overflow=need-cap,cutLow=Math.min(overflow,budget[p].low);budget[p].low-=cutLow;budget[p].sgi-=Math.max(0,overflow-cutLow);}}
+  function fullWeekCountInMonth(mk){const s=monthStartFromKey(mk),e=monthEndFromKey(mk),set=new Set();let x=new Date(s);while(x<=e){if(wd(x)<5)set.add(isoWeekKey(x));x.setDate(x.getDate()+1);}return Math.max(1,set.size);}function parentMonthWeight(p,mk){const arr=(slotsBy[mk]&&slotsBy[mk][p])||[];if(!arr.length)return 0;const ms=monthStartFromKey(mk),me=monthEndFromKey(mk),first=arr[0].date,last=arr[arr.length-1].date;if(first<=ms&&last>=me)return 1;return Math.max(0.12,new Set(arr.map(sl=>sl.week)).size/fullWeekCountInMonth(mk));}
+  function buildParentOptions(p,mk,target){const arrSlots=(slotsBy[mk]&&slotsBy[mk][p])||[],cap=arrSlots.length;if(!cap)return[{sgi:0,low:0,n:0,pay:0,weekend:0,cost:0}];const wdCap=arrSlots.filter(sl=>!sl.nonWork).length,norm=Math.max(1200,target||1200),opts=[],byTotal=new Map(),byLow=new Map(),lowZero=[];function pushLimited(map,key,o,limit){let a=map.get(key);if(!a){a=[];map.set(key,a);}a.push(o);if(a.length>limit*3)a.sort((x,y)=>x.cost-y.cost).splice(limit*2);}for(let s=0;s<=Math.min(budget[p].sgi,cap);s++){const lMax=Math.min(budget[p].low,cap-s);for(let l=0;l<=lMax;l++){const n=s+l,pay=s*rate[p]+l*LOW_DAY,diff=(pay-target)/norm,weekend=Math.max(0,n-wdCap);let cost=diff*diff+weekend*0.00035;if(target===0&&n>0)cost+=10+n;const o={sgi:s,low:l,n,pay,weekend,cost};opts.push(o);if(l===0)lowZero.push(o);pushLimited(byTotal,n,o,8);pushLimited(byLow,l,o,6);}}opts.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n);const keep=[],seen=new Set(),add=o=>{const k=o.sgi+'|'+o.low;if(!seen.has(k)){seen.add(k);keep.push(o);}};opts.slice(0,340).forEach(add);lowZero.forEach(add);for(const a of byTotal.values())a.sort((x,y)=>x.cost-y.cost).slice(0,8).forEach(add);for(const a of byLow.values())a.sort((x,y)=>x.cost-y.cost).slice(0,6).forEach(add);return keep.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n).slice(0,520);}
+  function optimizeParent(p,sharedSgiBefore){const pMonths=monthKeys.filter(mk=>(slotsBy[mk][p]||[]).length),weights={};let wsum=0;for(const mk of pMonths){weights[mk]=parentMonthWeight(p,mk);wsum+=weights[mk];}const totalPay=budget[p].sgi*rate[p]+budget[p].low*LOW_DAY,base=wsum?totalPay/wsum:0,options=pMonths.map(mk=>buildParentOptions(p,mk,base*(weights[mk]||0))),future=[];for(let i=0;i<=pMonths.length;i++){let cap=0;for(let j=i;j<pMonths.length;j++)cap+=(slotsBy[pMonths[j]][p]||[]).length;future[i]=cap;}let beam=[{sgi:0,low:0,cost:0,alloc:[]}];const BEAM=7000;for(let i=0;i<pMonths.length;i++){const mk=pMonths[i],target=base*(weights[mk]||0),map=new Map();for(const st of beam){for(const o of options[i]){const ns=st.sgi+o.sgi,nl=st.low+o.low;if(ns>budget[p].sgi||nl>budget[p].low)continue;const remTot=budget[p].sgi+budget[p].low-ns-nl;if(remTot>future[i+1])continue;if(budget[p].sgi-ns>future[i+1])continue;if(o.low>0&&sharedSgiBefore+st.sgi<GATE&&sharedSgiBefore+st.sgi+o.sgi<GATE)continue;const diff=(o.pay-target)/Math.max(1200,target||1200),nc=st.cost+o.cost+diff*diff*0.1,key=ns+'|'+nl,old=map.get(key);if(!old||nc<old.cost)map.set(key,{sgi:ns,low:nl,cost:nc,alloc:st.alloc.concat([{mk,p,sgi:o.sgi,low:o.low,pay:o.pay,weekend:o.weekend}])});}}beam=[...map.values()].sort((a,b)=>a.cost-b.cost).slice(0,BEAM);if(!beam.length)break;}let final=beam.find(st=>st.sgi===budget[p].sgi&&st.low===budget[p].low);if(!final&&beam.length){final=[...beam].sort((a,b)=>(a.cost+Math.abs(budget[p].sgi-a.sgi)*1000+Math.abs(budget[p].low-a.low)*1000)-(b.cost+Math.abs(budget[p].sgi-b.sgi)*1000+Math.abs(budget[p].low-b.low)*1000))[0];S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: månadsplanen kunde inte matcha alla dagar exakt. Reservfyllning används.`);}return final||{sgi:0,low:0,cost:0,alloc:[]};}
+  const parentOrder=parents.slice().sort((a,b)=>(S['p'+a].start||new Date(2999,0,1))-(S['p'+b].start||new Date(2999,0,1))),parentPlans={};let sharedSgiBefore=0;for(const p of parentOrder){const plan=optimizeParent(p,sharedSgiBefore);parentPlans[p]=plan.alloc;sharedSgiBefore+=budget[p].sgi;}
+  const planByMonth={};for(const mk of monthKeys){planByMonth[mk]={};for(const p of parents)planByMonth[mk][p]={sgi:0,low:0};}for(const p of parents){for(const it of parentPlans[p]||[])planByMonth[it.mk][p]={sgi:it.sgi,low:it.low};}
+  function chooseSpread(arr,count){const a=arr.slice().sort((x,y)=>x.date-y.date||x.p-y.p);if(count<=0)return[];if(count>=a.length)return a;const res=[],used=new Set();for(let i=0;i<count;i++){let idx=Math.round(((i+0.5)*a.length/count)-0.5);idx=Math.max(0,Math.min(a.length-1,idx));let best=idx,dist=0;while(used.has(best)&&dist<a.length){dist++;const left=idx-dist,right=idx+dist;if(left>=0&&!used.has(left)){best=left;break;}if(right<a.length&&!used.has(right)){best=right;break;}}used.add(best);res.push(a[best]);}return res.sort((x,y)=>x.date-y.date||x.p-y.p);}
+  function chooseSlots(cands,count,mode='spread'){const arr=cands.slice().sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);if(count<=0)return[];if(mode==='early')return arr.filter(x=>!x.nonWork).concat(arr.filter(x=>x.nonWork)).slice(0,count).sort((a,b)=>a.date-b.date||a.p-b.p);function grouped(days){const map=new Map();for(const sl of days){if(!map.has(sl.week))map.set(sl.week,{week:sl.week,first:sl.date,weekday:[],off:[]});const g=map.get(sl.week);if(sl.date<g.first)g.first=sl.date;(sl.nonWork?g.off:g.weekday).push(sl);}const groups=[...map.values()].sort((a,b)=>a.first-b.first);for(const g of groups){g.weekday.sort((a,b)=>a.weekday-b.weekday||a.date-b.date||a.p-b.p);g.off.sort((a,b)=>a.date-b.date||a.p-b.p);}return groups;}function takePrefixByWeek(days,n,bucket){const groups=grouped(days),picked=[];let maxLen=0;for(const g of groups)maxLen=Math.max(maxLen,g[bucket].length);for(let level=0;level<maxLen&&picked.length<n;level++){for(const g of groups){if(picked.length>=n)break;if(g[bucket][level])picked.push(g[bucket][level]);}}return picked;}const weekdays=arr.filter(x=>!x.nonWork),off=arr.filter(x=>x.nonWork);if(count<=weekdays.length)return takePrefixByWeek(weekdays,count,'weekday').sort((a,b)=>a.date-b.date||a.p-b.p);return takePrefixByWeek(weekdays,weekdays.length,'weekday').concat(takePrefixByWeek(off,count-weekdays.length,'off')).sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);}
+  const assigned=new Set();let gateSeen=0,gateDate=null;const placedCount={};for(const p of parents)placedCount[p]={sgi:0,low:0};function available(mk,p,afterDate=null){return(slotsBy[mk][p]||[]).filter(sl=>!assigned.has(daySlotKey(sl))&&(!afterDate||sl.date>afterDate));}function put(sl,type){if(!S.days[sl.ds])S.days[sl.ds]={};S.days[sl.ds]['p'+sl.p]=type;assigned.add(daySlotKey(sl));placedCount[sl.p][type]++;if(type==='sgi'){gateSeen++;if(gateSeen===GATE)gateDate=new Date(sl.date);}}function placeLowSpread(selected,lowCount){const lows=new Set(chooseSpread(selected,lowCount).map(daySlotKey));for(const sl of selected)put(sl,lows.has(daySlotKey(sl))?'low':'sgi');}
+  for(const mk of monthKeys){for(const p of parents){let {sgi:s,low:l}=planByMonth[mk][p];if(s+l<=0)continue;if(l>0&&gateSeen<GATE){const need=GATE-gateSeen,earlyS=Math.min(need,s);for(const sl of chooseSlots(available(mk,p),earlyS,'early'))put(sl,'sgi');s-=earlyS;if(gateSeen<GATE){S.autoInfo.warnings.push(`Lågdagar i ${mk} kunde inte placeras eftersom 180 SGI inte var uppnådda.`);l=0;}const selected=chooseSlots(available(mk,p,gateDate),s+l,'spread');placeLowSpread(selected,l);}else{const selected=chooseSlots(available(mk,p),s+l,'spread');placeLowSpread(selected,l);}}}
+  for(const p of parents){for(const typ of ['sgi','low']){let rem=budget[p][typ]-placedCount[p][typ],safety=0;while(rem>0&&safety++<2000){let cands=slots.filter(sl=>sl.p===p&&!assigned.has(daySlotKey(sl)));if(typ==='low')cands=cands.filter(sl=>gateSeen>=GATE&&(!gateDate||sl.date>gateDate));if(!cands.length)break;const chosen=chooseSlots(cands,1,'spread')[0];put(chosen,typ);rem--;}if(rem>0){S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: ${rem} ${typ==='sgi'?'SGI':'låg'}-dagar kunde inte placeras inom perioden.`);}}}
+  let seen=0,gateOk=true,used=[];for(const sl of slots){const v=(S.days[sl.ds]||{})['p'+sl.p];if(v)used.push({...sl,type:v});}used.sort((a,b)=>a.date-b.date||a.p-b.p);for(const it of used){if(it.type==='sgi')seen++;else if(it.type==='low'&&seen<GATE){gateOk=false;break;}}if(!gateOk){S.autoInfo.exact=false;S.autoInfo.warnings.push('Kontrollvarning: minst en lågdag hamnade före 180 SGI-dagar. Justera manuellt eller kör om med längre period.');}
+  S.autoInfo.allocated=placedCount;S.autoInfo.targetNote=parents.map(p=>`fördelade ${placedCount[p].sgi+placedCount[p].low}/${budget[p].sgi+budget[p].low} dagar för ${S['p'+p].name}`).join(', ')+'.';
+};
+rerunAuto=function(){S.days={};syncStateFromForm();runAutoDistrib();renderAllDays();updateAllMonthTotals();renderSumTable();updateTracker();const msg=document.getElementById('autoResultMsg');if(msg)msg.innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;};
+// Save / load extended data
+savePlan=function(){
+  syncStateFromForm();updateTransfer(false);setRemainingDaysFromInputs(false);if(!validateBeforeSave())return;
+  const fv={birthDate:getInputValue('birthDate'),p1xfer:getInputValue('p1xfer'),p2xfer:getInputValue('p2xfer'),autoDistrib:getCheckboxValue('autoDistrib'),asProt1:getCheckboxValue('asProt1',true),asProt2:getCheckboxValue('asProt2',true),manualRemaining:!!S.manualRemaining,extraPersons:S.extraPersons||0};
+  for(const p of activeParents()){fv[`p${p}name`]=getInputValue(`p${p}name`);fv[`p${p}sgi`]=getInputValue(`p${p}sgi`);fv[`p${p}tax`]=getInputValue(`p${p}tax`);fv[`p${p}start`]=getInputValue(`p${p}start`);fv[`p${p}end`]=getInputValue(`p${p}end`);fv[`p${p}remSgi`]=ensurePersonState(p).sgiDays;fv[`p${p}remLow`]=ensurePersonState(p).lowDays;}
+  const state={numParents:S.numParents,extraPersons:S.extraPersons||0,manualRemaining:!!S.manualRemaining,birth:iso(S.birth),calStart:iso(S.calStart),calEnd:iso(S.calEnd),days:S.days,autoInfo:S.autoInfo||null};
+  for(let p=1;p<=MAX_PERSONS;p++){const ps=ensurePersonState(p);state['p'+p]={...ps,start:iso(ps.start),end:iso(ps.end)};}
+  const sv={version:10,savedAt:new Date().toISOString(),fv,state};const blob=new Blob([JSON.stringify(sv,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');const names=activeParents().map(p=>(S['p'+p].name||('P'+p)).replace(/[^\wåäöÅÄÖ]/g,'_')).join('_');a.href=url;a.download=`foraldraplan_${names}_${ds(new Date())}.fpplan`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('💾 Planering sparad!');
+};
+applyPlan=function(data){
+  const fv=data.fv||{},sv=data.state||{};S.numParents=(sv.numParents||fv.numParents||1)===2?2:1;S.extraPersons=Math.max(0,Math.min(MAX_PERSONS-S.numParents,sv.extraPersons??fv.extraPersons??0));S.manualRemaining=!!(sv.manualRemaining??fv.manualRemaining);
+  document.querySelectorAll('#step1 .toggle-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===S.numParents));document.getElementById('p2card').style.display=S.numParents===2?'':'none';document.getElementById('xferSection').style.display=S.numParents===2?'':'none';
+  for(let p=1;p<=MAX_PERSONS;p++){ensurePersonState(p);Object.assign(S['p'+p],sv['p'+p]||{});S['p'+p].start=pd(S['p'+p].start);S['p'+p].end=pd(S['p'+p].end);}
+  renderExtraPersonCards();document.getElementById('birthDate').value=fv.birthDate||sv.birth||'';
+  for(const p of activeParents()){const ps=ensurePersonState(p);const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val??'';};set(`p${p}name`,fv[`p${p}name`]??ps.name??'');set(`p${p}sgi`,fv[`p${p}sgi`]??ps.sgi??'');set(`p${p}tax`,fv[`p${p}tax`]??ps.tax??30);set(`p${p}start`,fv[`p${p}start`]??iso(ps.start));set(`p${p}end`,fv[`p${p}end`]??iso(ps.end));updateParentName(p);}
+  document.getElementById('p1xfer').value=fv.p1xfer??0;document.getElementById('p2xfer').value=fv.p2xfer??0;document.getElementById('autoDistrib').checked=!!fv.autoDistrib;document.getElementById('asProt1').checked=fv.asProt1!==false;document.getElementById('asProt2').checked=fv.asProt2!==false;
+  syncStateFromForm();if(!S.manualRemaining)updateTransfer(false);for(const p of activeParents()){const ps=ensurePersonState(p);if(fv[`p${p}remSgi`]!==undefined)ps.sgiDays=parseInt(fv[`p${p}remSgi`])||0;if(fv[`p${p}remLow`]!==undefined)ps.lowDays=parseInt(fv[`p${p}remLow`])||0;}
+  renderRemainingInputs();S.days=normalizeDaysObject(sv.days||{});S.autoInfo=sv.autoInfo||null;S.birth=pd(fv.birthDate||sv.birth||'');const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.toggle('hidden',!document.getElementById('autoDistrib').checked);const asProt2Row=document.getElementById('asProt2Row');if(asProt2Row)asProt2Row.style.display=S.numParents===2?'':'none';
+  const starts=activeParents().map(p=>S['p'+p].start).filter(Boolean),ends=activeParents().map(p=>S['p'+p].end).filter(Boolean);if(starts.length&&ends.length){S.calStart=new Date(starts.sort((a,b)=>a-b)[0]);S.calEnd=new Date(ends.sort((a,b)=>b-a)[0]);allHols={};loadHols(S.calStart,S.calEnd);pruneDaysOutsideCalendar();updateLegend();renderCalendar();document.getElementById('calSection').classList.remove('hidden');document.getElementById('stickyTracker').classList.add('visible');if(fv.autoDistrib){document.getElementById('autoResultBox').classList.remove('hidden');document.getElementById('autoResultMsg').innerHTML='✅ <strong>Planering laddad!</strong>';}else document.getElementById('autoResultBox').classList.add('hidden');goStep(4);setTimeout(()=>document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'}),100);}else goStep(2);updateTracker();warnIfPlanExceedsBudget();toast('📂 Planering laddad!');
+};
+startOverPlanning=function(){
+  const hasData=Object.keys(S.days||{}).length||S.numParents||getInputValue('p1name')||getInputValue('p2name');if(hasData&&!confirm('Vill du starta om helt? Alla grunduppgifter, datum och inlagda dagar tas bort.'))return;
+  S.numParents=0;S.extraPersons=0;S.manualRemaining=false;for(let p=1;p<=MAX_PERSONS;p++){S['p'+p]={name:PERSON_CARD_LABEL[p]||('Person '+p),sgi:0,tax:30,sgiDays:p<=2?195:0,lowDays:p<=2?45:0,start:null,end:null};}S.birth=null;S.days={};S.calStart=null;S.calEnd=null;S.autoInfo=null;allHols={};
+  ['birthDate','p1name','p1sgi','p1start','p1end','p2name','p2sgi','p2start','p2end'].forEach(id=>resetInputValue(id,''));resetInputValue('p1tax','30');resetInputValue('p2tax','30');resetInputValue('p1xfer','0');resetInputValue('p2xfer','0');resetCheckbox('p1w240',false);resetCheckbox('p2w240',false);resetCheckbox('autoDistrib',false);resetCheckbox('asProt1',true);resetCheckbox('asProt2',true);
+  renderExtraPersonCards();renderRemainingInputs();document.querySelectorAll('#step1 .toggle-btn').forEach(b=>b.classList.remove('selected'));const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.add('hidden');const autoBox=document.getElementById('autoResultBox');if(autoBox)autoBox.classList.add('hidden');const cal=document.getElementById('calSection');if(cal)cal.classList.add('hidden');const tracker=document.getElementById('stickyTracker');if(tracker)tracker.classList.remove('visible');['trackerInner','calMonths','sumBody','totalsBars','xferResult'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});updateLegend();updateDaysGrid();goStep(1);const setup=document.getElementById('setupPanel');if(setup)setup.scrollIntoView({behavior:'smooth',block:'start'});toast('🔄 Planeringen har startats om.');
+};
+
+
+// ═══════════════ V6 RECIPIENT PERSON SUPPORT ═══════════════
+// Extra personer är mottagare av överlåtna dagar. De har inga egna SGI-/lågnivådagar.
+S.transferFrom=S.transferFrom||{}; // 'YYYY-MM-DD': {p3:1, p4:2} anger vilken förälder som förbrukar dagen.
+function baseParents(){return S.numParents===2?[1,2]:[1];}
+function isBaseParent(p){return p===1||(p===2&&S.numParents===2);}
+function isExtraRecipient(p){return p>S.numParents&&p<=totalPersons();}
+function ensureTransferRow(d2){if(!S.transferFrom)S.transferFrom={};if(!S.transferFrom[d2])S.transferFrom[d2]={};return S.transferFrom[d2];}
+function cleanTransferRow(d2){if(S.transferFrom&&S.transferFrom[d2]&&!Object.keys(S.transferFrom[d2]).length)delete S.transferFrom[d2];}
+function transferCountsForParent(parent,excludeDate=null){
+  const res={sgi:0,low:0};
+  for(const [date,row] of Object.entries(S.transferFrom||{})){
+    if(date===excludeDate)continue;
+    for(const [pk,from] of Object.entries(row||{})){
+      if(Number(from)!==parent)continue;
+      const typ=(S.days[date]||{})[pk];
+      if(typ==='sgi')res.sgi++; else if(typ==='low')res.low++;
+    }
+  }
+  return res;
+}
+function ownCountsForPerson(p,excludeDate=null){
+  const res={sgi:0,low:0};
+  for(const [date,data] of Object.entries(S.days||{})){
+    if(date===excludeDate)continue;
+    const v=data&&data['p'+p];
+    if(v==='sgi')res.sgi++; else if(v==='low')res.low++;
+  }
+  return res;
+}
+usedCountsForParent=function(p,excludeDate=null){
+  const own=ownCountsForPerson(p,excludeDate);
+  if(isBaseParent(p)){
+    const tr=transferCountsForParent(p,excludeDate);
+    return {sgi:own.sgi+tr.sgi,low:own.low+tr.low,ownSgi:own.sgi,ownLow:own.low,transSgi:tr.sgi,transLow:tr.low};
+  }
+  return own;
+};
+dayBudgetForParent=function(p,typ){
+  if(!isBaseParent(p))return Number.POSITIVE_INFINITY;
+  const parent=S['p'+p]||{};
+  return typ==='sgi'?(parent.sgiDays||0):(parent.lowDays||0);
+};
+function findTransferDonor(typ,excludeDate=null){
+  let best=null,bestRem=-1;
+  for(const donor of baseParents()){
+    const used=usedCountsForParent(donor,excludeDate);
+    const rem=dayBudgetForParent(donor,typ)-(used[typ]||0);
+    if(rem>bestRem){bestRem=rem;best=donor;}
+  }
+  return bestRem>0?best:null;
+}
+function showTransferLimitWarning(p,typ){
+  const name=(S['p'+p]&&S['p'+p].name)||('Person '+p);
+  const label=typ==='sgi'?'SGI-dagar':'lågnivådagar';
+  showPlanWarning(`⚠️ ${name} kan inte få fler ${label}. Det finns inga sådana dagar kvar hos föräldrarna att överlåta. Ta bort en likadan dag någon annanstans först.`);
+}
+canSetDay=function(d2,p,typ){
+  if(typ==='none')return true;
+  const current=(S.days[d2]||{})['p'+p]||null;
+  if(current===typ)return true;
+  if(isExtraRecipient(p)){
+    const donor=findTransferDonor(typ,d2);
+    if(!donor){showTransferLimitWarning(p,typ);return false;}
+    return true;
+  }
+  const used=usedCountsForParent(p,d2);
+  const budget=dayBudgetForParent(p,typ);
+  if((used[typ]||0)>=budget){showDayLimitWarning(p,typ);return false;}
+  return true;
+};
+setDay=function(d2,p,typ){
+  if(!canSetDay(d2,p,typ))return;
+  if(!S.days[d2])S.days[d2]={};
+  if(typ==='none'){
+    delete S.days[d2]['p'+p];
+    if(S.transferFrom&&S.transferFrom[d2]){delete S.transferFrom[d2]['p'+p];cleanTransferRow(d2);}
+    if(!Object.keys(S.days[d2]).length)delete S.days[d2];
+  }else{
+    if(isExtraRecipient(p)){
+      const donor=findTransferDonor(typ,d2);
+      if(!donor){showTransferLimitWarning(p,typ);return;}
+      ensureTransferRow(d2)['p'+p]=donor;
+    }else if(S.transferFrom&&S.transferFrom[d2]){
+      delete S.transferFrom[d2]['p'+p];cleanTransferRow(d2);
+    }
+    S.days[d2]['p'+p]=typ;
+  }
+  refreshCell(d2);const dt=pd(d2);updateMonthTotals(dt.getFullYear(),dt.getMonth());renderSumTable();updateTracker();warnIfPlanExceedsBudget();
+};
+function cleanTransfers(){
+  const out={};
+  for(const [date,row] of Object.entries(S.transferFrom||{})){
+    if(!S.days[date])continue;
+    const nr={};
+    for(const [pk,from] of Object.entries(row||{})){
+      const p=parseInt(pk.replace('p',''));
+      if(isExtraRecipient(p)&&(S.days[date]||{})[pk]&&(from===1||from===2))nr[pk]=from;
+    }
+    if(Object.keys(nr).length)out[date]=nr;
+  }
+  S.transferFrom=out;
+}
+renderExtraPersonCards=function(){
+  const box=document.getElementById('extraParentCards');if(!box)return;
+  let html='';
+  for(let p=3;p<=totalPersons();p++){
+    const person=ensurePersonState(p);person.planLeave=!!person.planLeave;
+    const esc=(v)=>String(v??'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    html+=`<div class="parent-card p${p}" id="p${p}card">
+      <h3>${PERSON_ICONS[p]||'👤'} ${PERSON_CARD_LABEL[p]}</h3>
+      <div class="form-group"><label>Namn</label><input type="text" id="p${p}name" placeholder="T.ex. Mormor" value="${esc(person.name||'')}" oninput="updateParentName(${p})"></div>
+      <div class="form-group" style="margin-top:10px"><label>SGI (kr/år)</label><input type="number" id="p${p}sgi" placeholder="T.ex. 360 000" min="0" value="${person.sgi||''}"><span class="form-hint">Används bara för att räkna ersättning om personen får överlåtna dagar.</span></div>
+      <div class="form-group" style="margin-top:10px"><label>Skattesats (%)</label><input type="text" id="p${p}tax" value="${person.tax??30}" placeholder="T.ex. 32,38" oninput="updateTaxFromInputs()"></div>
+      <div class="check-row" style="margin-top:12px"><input type="checkbox" id="p${p}planLeave" ${person.planLeave?'checked':''} onchange="toggleExtraPlanLeave(${p})"><label for="p${p}planLeave">Planera egen ledighetsperiod i kalendern</label></div>
+      <div class="info-box" style="margin-top:8px;background:#fff7ed;border-left-color:#f59e0b;color:#92400e">Den här personen har inga egna dagar. SGI-/lågnivådagar kan bara läggas in om någon förälder har motsvarande dag kvar att överlåta.</div>
+      <div class="form-grid ${person.planLeave?'':'hidden'}" id="p${p}dates" style="margin-top:10px"><div class="form-group"><label>Ledighetsstart</label><input type="date" id="p${p}start" value="${iso(person.start)}"></div><div class="form-group"><label>Ledighetsslutt</label><input type="date" id="p${p}end" value="${iso(person.end)}"></div></div>
+      <div class="btn-actions" style="margin-top:10px"><button type="button" class="btn btn-secondary" style="font-size:.75rem;padding:6px 12px" onclick="removeExtraPerson(${p})">Ta bort person</button></div>
+    </div>`;
+  }
+  box.innerHTML=html;
+};
+function toggleExtraPlanLeave(p){
+  const ps=ensurePersonState(p);ps.planLeave=!!getCheckboxValue('p'+p+'planLeave');
+  const dates=document.getElementById('p'+p+'dates');if(dates)dates.classList.toggle('hidden',!ps.planLeave);
+  syncStateFromForm();toast(ps.planLeave?'📅 Personen kan nu ha egen period.':'👤 Personen visas som mottagare utan egen period.');
+}
+renderRemainingInputs=function(){
+  const grid=document.getElementById('remainingGrid');if(!grid)return;
+  let html='';
+  for(const p of baseParents()){
+    const person=ensurePersonState(p);
+    html+=`<div class="remaining-card"><h4>${PERSON_ICONS[p]||'👤'} ${person.name||PERSON_CARD_LABEL[p]}</h4><div class="remaining-inputs">
+      <div><label style="font-size:.68rem;font-weight:800;color:var(--g500)">SGI kvar</label><input type="number" id="p${p}remSgi" min="0" step="1" value="${person.sgiDays||0}" oninput="setRemainingDaysFromInputs(true)"></div>
+      <div><label style="font-size:.68rem;font-weight:800;color:var(--g500)">Låg kvar</label><input type="number" id="p${p}remLow" min="0" step="1" value="${person.lowDays||0}" oninput="setRemainingDaysFromInputs(true)"></div>
+    </div></div>`;
+  }
+  if(totalPersons()>S.numParents){html+=`<div class="remaining-card" style="background:#fff7ed;border-color:#fed7aa"><h4>👨‍👩‍👧 Extra personer</h4><div style="font-size:.78rem;color:#92400e;line-height:1.4">Extra personer har inga egna dagar att ange. De kan få enskilda SGI-/lågnivådagar i kalendern om föräldrarna har dagar kvar att överlåta.</div></div>`;}
+  grid.innerHTML=html;
+};
+setRemainingDaysFromInputs=function(markManual=true){
+  if(markManual)S.manualRemaining=true;
+  for(const p of baseParents()){
+    const ps=ensurePersonState(p);const s=document.getElementById('p'+p+'remSgi'),l=document.getElementById('p'+p+'remLow');
+    if(s)ps.sgiDays=Math.max(0,parseInt(s.value)||0);if(l)ps.lowDays=Math.max(0,parseInt(l.value)||0);
+  }
+  for(let p=3;p<=MAX_PERSONS;p++){ensurePersonState(p).sgiDays=0;ensurePersonState(p).lowDays=0;}
+  updateDaysGrid();updateAllMonthTotals();renderSumTable();updateTracker();warnIfPlanExceedsBudget();
+};
+addExtraPerson=function(){
+  if((S.numParents||0)===0){alert('Välj först om planeringen gäller en eller två föräldrar.');return;}
+  if(totalPersons()>=MAX_PERSONS){alert('Max '+MAX_PERSONS+' personer stöds i denna version.');return;}
+  S.extraPersons=(S.extraPersons||0)+1;const p=totalPersons();
+  S['p'+p]={name:PERSON_CARD_LABEL[p]||('Person '+p),sgi:0,tax:30,sgiDays:0,lowDays:0,start:null,end:null,planLeave:false};
+  renderExtraPersonCards();renderRemainingInputs();updateDaysGrid();toast('➕ Extra person tillagd som mottagare av överlåtna dagar.');
+};
+syncStateFromForm=function(){
+  S.birth=pd(getInputValue('birthDate'));
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p);ps.name=getInputValue('p'+p+'name').trim()||PERSON_CARD_LABEL[p]||('Person '+p);ps.sgi=parseFloat(getInputValue('p'+p+'sgi'))||0;ps.tax=parsePct(getInputValue('p'+p+'tax'));
+    if(isExtraRecipient(p)){ps.planLeave=!!getCheckboxValue('p'+p+'planLeave');}
+    ps.start=pd(getInputValue('p'+p+'start'));ps.end=pd(getInputValue('p'+p+'end'));
+    if(isExtraRecipient(p)){ps.sgiDays=0;ps.lowDays=0;}
+  }
+  setRemainingDaysFromInputs(false);cleanTransfers();
+};
+normalizeDaysObject=function(days){
+  const out={};const act=activeParents();
+  for(const [date,data] of Object.entries(days||{})){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!data)continue;
+    const row={};for(const p of act){const v=data['p'+p];if(v==='sgi'||v==='low')row['p'+p]=v;}
+    if(Object.keys(row).length)out[date]=row;
+  }
+  return out;
+};
+pruneDaysOutsideCalendar=function(){
+  if(!S.calStart||!S.calEnd){S.days=normalizeDaysObject(S.days);cleanTransfers();return;}
+  const out={};for(const [date,data] of Object.entries(normalizeDaysObject(S.days))){const d=pd(date);if(d&&d>=S.calStart&&d<=S.calEnd)out[date]=data;}S.days=out;cleanTransfers();
+};
+budgetOverflowMessages=function(){
+  const msgs=[];
+  for(const p of baseParents()){
+    const used=usedCountsForParent(p),name=ensurePersonState(p).name||('Förälder '+p);
+    if(used.sgi>dayBudgetForParent(p,'sgi'))msgs.push(`${name}: ${used.sgi} SGI-dagar används/överlåts men bara ${dayBudgetForParent(p,'sgi')} finns tillgängliga.`);
+    if(used.low>dayBudgetForParent(p,'low'))msgs.push(`${name}: ${used.low} lägstanivådagar används/överlåts men bara ${dayBudgetForParent(p,'low')} finns tillgängliga.`);
+  }
+  for(const [date,row] of Object.entries(S.days||{}))for(const p of activeParents())if(isExtraRecipient(p)&&row['p'+p]&&!(S.transferFrom&&S.transferFrom[date]&&S.transferFrom[date]['p'+p]))msgs.push(`${ensurePersonState(p).name}: dag ${date} saknar överlåtande förälder.`);
+  return msgs;
+};
+updateTracker=function(){
+  const inner=document.getElementById('trackerInner');if(!inner)return;const own={};for(const p of activeParents())own[p]={sgi:0,low:0};for(const row of Object.values(S.days||{})){for(const p of activeParents()){if(row['p'+p]==='sgi')own[p].sgi++;else if(row['p'+p]==='low')own[p].low++;}}
+  let html='<div class="tracker-title">Fast sammanställning</div>';
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p),r=dayRate(ps.sgi),pay=own[p].sgi*r+own[p].low*LOW_DAY;
+    if(isBaseParent(p)){
+      const used=usedCountsForParent(p),remS=Math.max(0,(ps.sgiDays||0)-used.sgi),remL=Math.max(0,(ps.lowDays||0)-used.low),u=used.sgi+used.low,max=(ps.sgiDays||0)+(ps.lowDays||0);
+      const extraTxt=(used.transSgi||used.transLow)?` · överlåtet: ${used.transSgi||0} SGI/${used.transLow||0} LÅG`:'';
+      html+=`<div class="tracker-parent"><span class="t-name">${PERSON_ICONS[p]||'👤'} ${ps.name}</span><div class="t-chip tot">Använt: ${u}/${max} dagar</div><div class="t-chip sgi${p}"><span class="dot7 d-sgi${p}"></span>SGI: ${used.sgi} · ${remS} kvar</div><div class="t-chip low${p}"><span class="dot7 d-low${p}"></span>Låg: ${used.low} · ${remL} kvar</div><div class="t-chip tot">Summa: ${fmt(pay)} <small>/ netto ${fmt(net(pay,p))}${extraTxt}</small></div></div>`;
+    }else{
+      const u=own[p].sgi+own[p].low;html+=`<div class="tracker-parent"><span class="t-name">${PERSON_ICONS[p]||'👤'} ${ps.name}</span><div class="t-chip tot">Mottaget: ${u} dagar</div><div class="t-chip sgi${p}"><span class="dot7 d-sgi${p}"></span>SGI: ${own[p].sgi}</div><div class="t-chip low${p}"><span class="dot7 d-low${p}"></span>Låg: ${own[p].low}</div><div class="t-chip tot">Summa: ${fmt(pay)} <small>/ netto ${fmt(net(pay,p))}</small></div></div>`;
+    }
+  }
+  inner.innerHTML=html;
+};
+buildCalendar=function(){
+  syncStateFromForm();updateTransfer(false);setRemainingDaysFromInputs(false);
+  const required=baseParents();
+  for(const p of required){const ps=ensurePersonState(p);if(!ps.start||!ps.end){alert('Ange ledighetsperiod för '+ps.name);return;}if(ps.start>ps.end){alert('Slutdatum före startdatum för '+ps.name);return;}}
+  const rangePersons=[...required];for(let p=3;p<=totalPersons();p++){const ps=ensurePersonState(p);if(ps.planLeave){if(!ps.start||!ps.end){alert('Ange ledighetsperiod för '+ps.name+' eller avmarkera egen ledighetsperiod.');return;}if(ps.start>ps.end){alert('Slutdatum före startdatum för '+ps.name);return;}rangePersons.push(p);}}
+  let cS=new Date(rangePersons.map(p=>S['p'+p].start).sort((a,b)=>a-b)[0]),cE=new Date(rangePersons.map(p=>S['p'+p].end).sort((a,b)=>b-a)[0]);S.calStart=cS;S.calEnd=cE;allHols={};loadHols(cS,cE);pruneDaysOutsideCalendar();updateLegend();
+  if(document.getElementById('autoDistrib').checked){runAutoDistrib();document.getElementById('autoResultBox').classList.remove('hidden');document.getElementById('autoResultMsg').innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;}else document.getElementById('autoResultBox').classList.add('hidden');
+  renderCalendar();document.getElementById('calSection').classList.remove('hidden');document.getElementById('stickyTracker').classList.add('visible');document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'});goStep(4);updateTracker();
+};
+runAutoDistrib=function(){
+  S.transferFrom={};
+  // Kör den befintliga optimeringsmotorn enbart på föräldrar med egna dagpotter.
+  const oldExtra=S.extraPersons;S.extraPersons=0;
+  const keep={};for(let p=3;p<=MAX_PERSONS;p++)keep[p]=S['p'+p];
+  try{ /* den tidigare generiska motorn ligger kvar som kod i filen, men vi behöver inte anropa den här. */ }finally{S.extraPersons=oldExtra;for(let p=3;p<=MAX_PERSONS;p++)S['p'+p]=keep[p];}
+  // Lokal kopia av v5-motorn, begränsad till basföräldrar.
+  S.days={};const parents=baseParents();S.autoInfo={warnings:[],exact:true,allocated:{},targetNote:''};for(const p of parents)S.autoInfo.allocated[p]={sgi:0,low:0};
+  const birth=S.birth,bp1=birth?new Date(birth.getFullYear()+1,birth.getMonth(),birth.getDate()):null;const rate={},budget={};for(const p of parents){const ps=ensurePersonState(p);rate[p]=dayRate(ps.sgi);budget[p]={sgi:ps.sgiDays||0,low:ps.lowDays||0};}
+  const GATE=180,mkOf=d=>`${d.getFullYear()}-${d.getMonth()}`,daySlotKey=sl=>`${sl.p}|${sl.ds}`,inPeriod=(p,d)=>{const ps=S['p'+p];return ps.start&&ps.end&&d>=ps.start&&d<=ps.end;},nonWork=d=>wd(d)>=5||!!isHol(ds(d));
+  function isoWeekKey(date){return date.getFullYear()+'-W'+String(getWeekNumber(date)).padStart(2,'0');}function monthStartFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m,1);}function monthEndFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m+1,0);}
+  const slots=[];let ord=0,d=new Date(S.calStart);while(d<=S.calEnd){for(const p of parents){if(inPeriod(p,d)){slots.push({p,ds:ds(d),date:new Date(d),mk:mkOf(d),week:isoWeekKey(d),weekday:wd(d),nonWork:nonWork(d),order:ord++});}}d.setDate(d.getDate()+1);}slots.sort((a,b)=>a.date-b.date||a.p-b.p);if(!slots.length)return;
+  const monthKeys=[];let mc=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1),lastM=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);while(mc<=lastM){monthKeys.push(mkOf(mc));mc.setMonth(mc.getMonth()+1);}const slotsBy={};for(const mk of monthKeys){slotsBy[mk]={};for(const p of parents)slotsBy[mk][p]=[];}for(const sl of slots){if(slotsBy[sl.mk])slotsBy[sl.mk][sl.p].push(sl);}
+  const monthWeight={};for(const mk of monthKeys){const ms=monthStartFromKey(mk),me=monthEndFromKey(mk);const weeks=new Set();for(const sl of slots.filter(x=>x.mk===mk))weeks.add(sl.week);monthWeight[mk]=Math.max(.15,weeks.size/4.345);}const totalWeight=Object.values(monthWeight).reduce((a,b)=>a+b,0)||1,totalPay=parents.reduce((sum,p)=>sum+budget[p].sgi*rate[p]+budget[p].low*LOW_DAY,0),targetUnit=totalPay/totalWeight;
+  const planByMonth={};for(const mk of monthKeys){planByMonth[mk]={};for(const p of parents)planByMonth[mk][p]={sgi:0,low:0};}
+  const remaining={};for(const p of parents)remaining[p]={sgi:budget[p].sgi,low:budget[p].low};function monthPay(mk){let v=0;for(const p of parents){v+=planByMonth[mk][p].sgi*rate[p]+planByMonth[mk][p].low*LOW_DAY;}return v;}function cap(mk,p){return slotsBy[mk][p].length;}function usedInMonth(mk,p){return planByMonth[mk][p].sgi+planByMonth[mk][p].low;}function scoreAdd(mk,p,typ){const before=monthPay(mk),after=before+(typ==='sgi'?rate[p]:LOW_DAY),target=targetUnit*monthWeight[mk];let score=Math.abs(after-target)-Math.abs(before-target);score+=usedInMonth(mk,p)*0.15;return score;}
+  let sharedSgiPlanned=0,safety=0;while(sharedSgiPlanned<Math.min(GATE,parents.reduce((a,p)=>a+remaining[p].sgi,0))&&safety++<2000){let best=null;for(const mk of monthKeys){for(const p of parents){if(remaining[p].sgi<=0||usedInMonth(mk,p)>=cap(mk,p))continue;const sc=scoreAdd(mk,p,'sgi');if(!best||sc<best.sc)best={mk,p,sc};}}if(!best)break;planByMonth[best.mk][best.p].sgi++;remaining[best.p].sgi--;sharedSgiPlanned++;}
+  const totalLeft=parents.reduce((a,p)=>a+remaining[p].sgi+remaining[p].low,0);safety=0;while(parents.some(p=>remaining[p].sgi>0||remaining[p].low>0)&&safety++<5000){let best=null;for(const mk of monthKeys){for(const p of parents){if(usedInMonth(mk,p)>=cap(mk,p))continue;for(const typ of ['low','sgi']){if(remaining[p][typ]<=0)continue;const sc=scoreAdd(mk,p,typ)+(typ==='sgi'?0.05:0);if(!best||sc<best.sc)best={mk,p,typ,sc};}}}if(!best)break;planByMonth[best.mk][best.p][best.typ]++;remaining[best.p][best.typ]--;}
+  const planKeys=monthKeys;function chooseSpread(arr,count){if(count<=0)return[];if(count>=arr.length)return arr.slice();const res=[],step=(arr.length-1)/Math.max(1,count-1);const taken=new Set();for(let i=0;i<count;i++){let idx=Math.round(i*step);while(taken.has(idx)&&idx<arr.length-1)idx++;taken.add(idx);res.push(arr[idx]);}return res.filter(Boolean);}function chooseSlots(arr,count,mode='spread'){arr=arr.slice().sort((a,b)=>a.date-b.date||a.weekday-b.weekday||a.p-b.p);if(count<=0)return[];if(count>=arr.length)return arr;function takePrefixByWeek(list,n){const g={};for(const sl of list){(g[sl.week]||(g[sl.week]=[])).push(sl);}for(const k of Object.keys(g))g[k].sort((a,b)=>a.weekday-b.weekday||a.date-b.date);const weeks=Object.keys(g).sort();const picked=[];let level=0;while(picked.length<n){let added=false;for(const wk of weeks){if(g[wk][level]){picked.push(g[wk][level]);added=true;if(picked.length>=n)break;}}if(!added)break;level++;}return picked;}const weekdays=arr.filter(x=>!x.nonWork),off=arr.filter(x=>x.nonWork);if(count<=weekdays.length)return takePrefixByWeek(weekdays,count).sort((a,b)=>a.date-b.date||a.p-b.p);return takePrefixByWeek(weekdays,weekdays.length).concat(takePrefixByWeek(off,count-weekdays.length)).sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);}const assigned=new Set();let gateSeen=0,gateDate=null;const placedCount={};for(const p of parents)placedCount[p]={sgi:0,low:0};function available(mk,p,afterDate=null){return(slotsBy[mk][p]||[]).filter(sl=>!assigned.has(daySlotKey(sl))&&(!afterDate||sl.date>afterDate));}function put(sl,type){if(!S.days[sl.ds])S.days[sl.ds]={};S.days[sl.ds]['p'+sl.p]=type;assigned.add(daySlotKey(sl));placedCount[sl.p][type]++;if(type==='sgi'){gateSeen++;if(gateSeen===GATE)gateDate=new Date(sl.date);}}function placeLowSpread(selected,lowCount){const lows=new Set(chooseSpread(selected,lowCount).map(daySlotKey));for(const sl of selected)put(sl,lows.has(daySlotKey(sl))?'low':'sgi');}
+  for(const mk of planKeys){for(const p of parents){let {sgi:s,low:l}=planByMonth[mk][p];if(s+l<=0)continue;if(l>0&&gateSeen<GATE){const need=GATE-gateSeen,earlyS=Math.min(need,s);for(const sl of chooseSlots(available(mk,p),earlyS,'early'))put(sl,'sgi');s-=earlyS;if(gateSeen<GATE){S.autoInfo.warnings.push(`Lågdagar i ${mk} kunde inte placeras eftersom 180 SGI inte var uppnådda.`);l=0;}const selected=chooseSlots(available(mk,p,gateDate),s+l,'spread');placeLowSpread(selected,l);}else{const selected=chooseSlots(available(mk,p),s+l,'spread');placeLowSpread(selected,l);}}}
+  for(const p of parents){for(const typ of ['sgi','low']){let rem=budget[p][typ]-placedCount[p][typ],safe=0;while(rem>0&&safe++<2000){let cands=slots.filter(sl=>sl.p===p&&!assigned.has(daySlotKey(sl)));if(typ==='low')cands=cands.filter(sl=>gateSeen>=GATE&&(!gateDate||sl.date>gateDate));if(!cands.length)break;const chosen=chooseSlots(cands,1,'spread')[0];put(chosen,typ);rem--;}if(rem>0){S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: ${rem} ${typ==='sgi'?'SGI':'låg'}-dagar kunde inte placeras inom perioden.`);}}}
+  S.autoInfo.allocated=placedCount;S.autoInfo.targetNote=parents.map(p=>`fördelade ${placedCount[p].sgi+placedCount[p].low}/${budget[p].sgi+budget[p].low} dagar för ${S['p'+p].name}`).join(', ')+'.';
+};
+savePlan=function(){
+  syncStateFromForm();updateTransfer(false);setRemainingDaysFromInputs(false);cleanTransfers();if(!validateBeforeSave())return;
+  const fv={birthDate:getInputValue('birthDate'),p1xfer:getInputValue('p1xfer'),p2xfer:getInputValue('p2xfer'),autoDistrib:getCheckboxValue('autoDistrib'),asProt1:getCheckboxValue('asProt1',true),asProt2:getCheckboxValue('asProt2',true),manualRemaining:!!S.manualRemaining,extraPersons:S.extraPersons||0};
+  for(const p of activeParents()){const ps=ensurePersonState(p);fv[`p${p}name`]=getInputValue(`p${p}name`);fv[`p${p}sgi`]=getInputValue(`p${p}sgi`);fv[`p${p}tax`]=getInputValue(`p${p}tax`);fv[`p${p}start`]=getInputValue(`p${p}start`);fv[`p${p}end`]=getInputValue(`p${p}end`);fv[`p${p}planLeave`]=!!ps.planLeave;if(isBaseParent(p)){fv[`p${p}remSgi`]=ps.sgiDays;fv[`p${p}remLow`]=ps.lowDays;}}
+  const state={numParents:S.numParents,extraPersons:S.extraPersons||0,manualRemaining:!!S.manualRemaining,birth:iso(S.birth),calStart:iso(S.calStart),calEnd:iso(S.calEnd),days:S.days,transferFrom:S.transferFrom||{},autoInfo:S.autoInfo||null};for(let p=1;p<=MAX_PERSONS;p++){const ps=ensurePersonState(p);state['p'+p]={...ps,start:iso(ps.start),end:iso(ps.end)};}
+  const sv={version:11,savedAt:new Date().toISOString(),fv,state};const blob=new Blob([JSON.stringify(sv,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');const names=baseParents().map(p=>(S['p'+p].name||('P'+p)).replace(/[^\wåäöÅÄÖ]/g,'_')).join('_');a.href=url;a.download=`foraldraplan_${names}_${ds(new Date())}.fpplan`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('💾 Planering sparad!');
+};
+applyPlan=function(data){
+  const fv=data.fv||{},sv=data.state||{};S.numParents=(sv.numParents||fv.numParents||1)===2?2:1;S.extraPersons=Math.max(0,Math.min(MAX_PERSONS-S.numParents,sv.extraPersons??fv.extraPersons??0));S.manualRemaining=!!(sv.manualRemaining??fv.manualRemaining);S.transferFrom=sv.transferFrom||{};
+  document.querySelectorAll('#step1 .toggle-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===S.numParents));document.getElementById('p2card').style.display=S.numParents===2?'':'none';document.getElementById('xferSection').style.display=S.numParents===2?'':'none';
+  for(let p=1;p<=MAX_PERSONS;p++){ensurePersonState(p);Object.assign(S['p'+p],sv['p'+p]||{});S['p'+p].start=pd(S['p'+p].start);S['p'+p].end=pd(S['p'+p].end);if(p>2){S['p'+p].sgiDays=0;S['p'+p].lowDays=0;S['p'+p].planLeave=!!(S['p'+p].planLeave??fv[`p${p}planLeave`]);}}
+  renderExtraPersonCards();document.getElementById('birthDate').value=fv.birthDate||sv.birth||'';
+  for(const p of activeParents()){const ps=ensurePersonState(p);const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val??'';};set(`p${p}name`,fv[`p${p}name`]??ps.name??'');set(`p${p}sgi`,fv[`p${p}sgi`]??ps.sgi??'');set(`p${p}tax`,fv[`p${p}tax`]??ps.tax??30);set(`p${p}start`,fv[`p${p}start`]??iso(ps.start));set(`p${p}end`,fv[`p${p}end`]??iso(ps.end));const chk=document.getElementById(`p${p}planLeave`);if(chk)chk.checked=!!ps.planLeave;updateParentName(p);}
+  document.getElementById('p1xfer').value=fv.p1xfer??0;document.getElementById('p2xfer').value=fv.p2xfer??0;document.getElementById('autoDistrib').checked=!!fv.autoDistrib;document.getElementById('asProt1').checked=fv.asProt1!==false;document.getElementById('asProt2').checked=fv.asProt2!==false;
+  syncStateFromForm();if(!S.manualRemaining)updateTransfer(false);for(const p of baseParents()){const ps=ensurePersonState(p);if(fv[`p${p}remSgi`]!==undefined)ps.sgiDays=parseInt(fv[`p${p}remSgi`])||0;if(fv[`p${p}remLow`]!==undefined)ps.lowDays=parseInt(fv[`p${p}remLow`])||0;}
+  renderExtraPersonCards();renderRemainingInputs();S.days=normalizeDaysObject(sv.days||{});S.transferFrom=sv.transferFrom||{};cleanTransfers();S.autoInfo=sv.autoInfo||null;S.birth=pd(fv.birthDate||sv.birth||'');const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.toggle('hidden',!document.getElementById('autoDistrib').checked);const asProt2Row=document.getElementById('asProt2Row');if(asProt2Row)asProt2Row.style.display=S.numParents===2?'':'none';
+  const range=baseParents();for(let p=3;p<=totalPersons();p++){const ps=ensurePersonState(p);if(ps.planLeave&&ps.start&&ps.end)range.push(p);}const starts=range.map(p=>S['p'+p].start).filter(Boolean),ends=range.map(p=>S['p'+p].end).filter(Boolean);if(starts.length&&ends.length){S.calStart=new Date(starts.sort((a,b)=>a-b)[0]);S.calEnd=new Date(ends.sort((a,b)=>b-a)[0]);allHols={};loadHols(S.calStart,S.calEnd);pruneDaysOutsideCalendar();updateLegend();renderCalendar();document.getElementById('calSection').classList.remove('hidden');document.getElementById('stickyTracker').classList.add('visible');if(fv.autoDistrib){document.getElementById('autoResultBox').classList.remove('hidden');document.getElementById('autoResultMsg').innerHTML='✅ <strong>Planering laddad!</strong>';}else document.getElementById('autoResultBox').classList.add('hidden');goStep(4);setTimeout(()=>document.getElementById('calSection').scrollIntoView({behavior:'smooth',block:'start'}),100);}else goStep(2);updateTracker();warnIfPlanExceedsBudget();toast('📂 Planering laddad!');
+};
+startOverPlanning=function(){
+  const hasData=Object.keys(S.days||{}).length||S.numParents||getInputValue('p1name')||getInputValue('p2name');if(hasData&&!confirm('Vill du starta om helt? Alla grunduppgifter, datum och inlagda dagar tas bort.'))return;
+  S.numParents=0;S.extraPersons=0;S.manualRemaining=false;S.transferFrom={};for(let p=1;p<=MAX_PERSONS;p++){S['p'+p]={name:PERSON_CARD_LABEL[p]||('Person '+p),sgi:0,tax:30,sgiDays:p<=2?195:0,lowDays:p<=2?45:0,start:null,end:null,planLeave:false};}S.birth=null;S.days={};S.calStart=null;S.calEnd=null;S.autoInfo=null;allHols={};
+  ['birthDate','p1name','p1sgi','p1start','p1end','p2name','p2sgi','p2start','p2end'].forEach(id=>resetInputValue(id,''));resetInputValue('p1tax','30');resetInputValue('p2tax','30');resetInputValue('p1xfer','0');resetInputValue('p2xfer','0');resetCheckbox('p1w240',false);resetCheckbox('p2w240',false);resetCheckbox('autoDistrib',false);resetCheckbox('asProt1',true);resetCheckbox('asProt2',true);
+  renderExtraPersonCards();renderRemainingInputs();document.querySelectorAll('#step1 .toggle-btn').forEach(b=>b.classList.remove('selected'));const autoOpts=document.getElementById('autoOpts');if(autoOpts)autoOpts.classList.add('hidden');const autoBox=document.getElementById('autoResultBox');if(autoBox)autoBox.classList.add('hidden');const cal=document.getElementById('calSection');if(cal)cal.classList.add('hidden');const tracker=document.getElementById('stickyTracker');if(tracker)tracker.classList.remove('visible');['trackerInner','calMonths','sumBody','totalsBars','xferResult'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});updateLegend();updateDaysGrid();goStep(1);const setup=document.getElementById('setupPanel');if(setup)setup.scrollIntoView({behavior:'smooth',block:'start'});toast('🔄 Planeringen har startats om.');
+};
+
+renderExtraPersonCards();renderRemainingInputs();
+
+
+// ═══════════════ V7 FIX: ÅTERSTÄLL FUNGERANDE MÅNADSOPTIMERING ═══════════════
+runAutoDistrib=function(){
+  S.days={};
+  // Automatfördelningen ska bara planera basföräldrarnas egna dagar.
+  // Extra personer är endast mottagare av överlåtna dagar och ska inte påverka månadsoptimeringen.
+  S.transferFrom={};
+  S.autoInfo={warnings:[],exact:true,allocated:{1:{sgi:0,low:0},2:{sgi:0,low:0}},targetNote:''};
+
+  const birth=S.birth;
+  const bp1=birth?new Date(birth.getFullYear()+1,birth.getMonth(),birth.getDate()):null;
+  const parents=S.numParents===2?[1,2]:[1];
+  const prot={1:document.getElementById('asProt1').checked,2:S.numParents===2&&document.getElementById('asProt2').checked};
+  const rate={1:dayRate(S.p1.sgi),2:dayRate(S.p2.sgi)};
+  const budget={1:{sgi:S.p1.sgiDays,low:S.p1.lowDays},2:{sgi:S.p2.sgiDays,low:S.p2.lowDays}};
+  const GATE=180;
+
+  const mkOf=d=>`${d.getFullYear()}-${d.getMonth()}`;
+  const daySlotKey=sl=>`${sl.p}|${sl.ds}`;
+  const inPeriod=(p,d)=>{const ps=S['p'+p];return ps.start&&ps.end&&d>=ps.start&&d<=ps.end;};
+  const nonWork=d=>wd(d)>=5||!!isHol(ds(d));
+  function isoWeekKey(date){return date.getFullYear()+'-W'+String(getWeekNumber(date)).padStart(2,'0');}
+  function monthStartFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m,1);}
+  function monthEndFromKey(mk){const [y,m]=mk.split('-').map(Number);return new Date(y,m+1,0);}
+
+  const slots=[];
+  let ord=0,d=new Date(S.calStart);
+  while(d<=S.calEnd){
+    for(const p of parents){
+      if(inPeriod(p,d)){
+        const d2=ds(d);
+        slots.push({p,ds:d2,date:new Date(d),mk:mkOf(d),week:isoWeekKey(d),weekday:wd(d),nonWork:nonWork(d),order:ord++});
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+  slots.sort((a,b)=>a.date-b.date||a.p-b.p);
+  if(!slots.length)return;
+
+  const monthKeys=[];
+  let mc=new Date(S.calStart.getFullYear(),S.calStart.getMonth(),1);
+  const lastM=new Date(S.calEnd.getFullYear(),S.calEnd.getMonth(),1);
+  while(mc<=lastM){monthKeys.push(mkOf(mc));mc.setMonth(mc.getMonth()+1);}
+
+  const slotsBy={};
+  for(const mk of monthKeys){slotsBy[mk]={1:[],2:[]};}
+  for(const sl of slots){if(slotsBy[sl.mk])slotsBy[sl.mk][sl.p].push(sl);}
+
+  for(const p of parents){
+    const cap=slots.filter(sl=>sl.p===p).length;
+    const need=budget[p].sgi+budget[p].low;
+    if(need>cap){
+      S.autoInfo.exact=false;
+      S.autoInfo.warnings.push(`${S['p'+p].name}: perioden rymmer bara ${cap} kalenderdagar, men ${need} dagar ska fördelas.`);
+      const overflow=need-cap;
+      const cutLow=Math.min(overflow,budget[p].low);
+      budget[p].low-=cutLow;
+      budget[p].sgi-=Math.max(0,overflow-cutLow);
+    }
+  }
+
+  function fullWeekCountInMonth(mk){
+    const s=monthStartFromKey(mk),e=monthEndFromKey(mk),set=new Set();
+    let x=new Date(s);
+    while(x<=e){
+      // Räkna full månad i kalenderveckor, men hoppa över veckor som bara
+      // råkar nudda månaden med lördag/söndag. Det gör t.ex. jan 2028 till
+      // fem relevanta veckor i stället för sex.
+      if(wd(x)<5)set.add(isoWeekKey(x));
+      x.setDate(x.getDate()+1);
+    }
+    return Math.max(1,set.size);
+  }
+  function parentMonthWeight(p,mk){
+    const arr=(slotsBy[mk]&&slotsBy[mk][p]||[]);
+    if(!arr.length)return 0;
+    const ms=monthStartFromKey(mk),me=monthEndFromKey(mk);
+    const first=arr[0].date,last=arr[arr.length-1].date;
+    // Hela kalendermånader ska ha samma vikt. Endast start- och slutmånader
+    // viktas ned, baserat på hur många kalenderveckor som faktiskt ingår.
+    if(first<=ms&&last>=me)return 1;
+    const set=new Set(arr.map(sl=>sl.week));
+    return Math.max(0.12,set.size/fullWeekCountInMonth(mk));
+  }
+
+  const overlaps=parents.length===2&&S.p1.start&&S.p2.start&&S.p1.end&&S.p2.end&&S.p1.start<=S.p2.end&&S.p2.start<=S.p1.end;
+  if(overlaps)S.autoInfo.warnings.push('Föräldrarnas perioder överlappar. Motorn optimerar fortfarande dagarna, men kontrollera dubbeldagar manuellt om ni vill begränsa dem.');
+
+  function buildParentOptions(p,mk,target){
+    const arrSlots=(slotsBy[mk]&&slotsBy[mk][p])||[];
+    const cap=arrSlots.length;
+    if(!cap)return [{sgi:0,low:0,n:0,pay:0,weekend:0,cost:0}];
+    const wdCap=arrSlots.filter(sl=>!sl.nonWork).length;
+    const norm=Math.max(1200,target||1200);
+    const opts=[],byTotal=new Map(),byLow=new Map(),lowZero=[];
+    function pushLimited(map,key,o,limit){let a=map.get(key);if(!a){a=[];map.set(key,a);}a.push(o);if(a.length>limit*3)a.sort((x,y)=>x.cost-y.cost).splice(limit*2);}
+    for(let s=0;s<=Math.min(budget[p].sgi,cap);s++){
+      const lMax=Math.min(budget[p].low,cap-s);
+      for(let l=0;l<=lMax;l++){
+        const n=s+l;
+        const pay=s*rate[p]+l*LOW_DAY;
+        const diff=(pay-target)/norm;
+        const weekend=Math.max(0,n-wdCap);
+        let cost=diff*diff+weekend*0.00035;
+        if(target===0&&n>0)cost+=10+n;
+        const o={sgi:s,low:l,n,pay,weekend,cost};
+        opts.push(o);if(l===0)lowZero.push(o);pushLimited(byTotal,n,o,8);pushLimited(byLow,l,o,6);
+      }
+    }
+    opts.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n);
+    const keep=[],seen=new Set();
+    const add=o=>{const k=o.sgi+'|'+o.low;if(!seen.has(k)){seen.add(k);keep.push(o);}};
+    opts.slice(0,340).forEach(add);
+    lowZero.forEach(add);
+    for(const a of byTotal.values())a.sort((x,y)=>x.cost-y.cost).slice(0,8).forEach(add);
+    for(const a of byLow.values())a.sort((x,y)=>x.cost-y.cost).slice(0,6).forEach(add);
+    keep.sort((a,b)=>a.cost-b.cost||a.weekend-b.weekend||a.n-b.n);
+    return keep.slice(0,520);
+  }
+
+  function optimizeParent(p,sharedSgiBefore){
+    const pMonths=monthKeys.filter(mk=>(slotsBy[mk][p]||[]).length);
+    const weights={};let wsum=0;
+    for(const mk of pMonths){weights[mk]=parentMonthWeight(p,mk);wsum+=weights[mk];}
+    const totalPay=budget[p].sgi*rate[p]+budget[p].low*LOW_DAY;
+    const base=wsum?totalPay/wsum:0;
+    const options=pMonths.map(mk=>buildParentOptions(p,mk,base*(weights[mk]||0)));
+    const future=[];
+    for(let i=0;i<=pMonths.length;i++){
+      let cap=0;
+      for(let j=i;j<pMonths.length;j++)cap+=(slotsBy[pMonths[j]][p]||[]).length;
+      future[i]=cap;
+    }
+    let beam=[{sgi:0,low:0,cost:0,alloc:[]}];
+    const BEAM=7000;
+    for(let i=0;i<pMonths.length;i++){
+      const mk=pMonths[i],target=base*(weights[mk]||0);
+      const map=new Map();
+      for(const st of beam){
+        for(const o of options[i]){
+          const ns=st.sgi+o.sgi,nl=st.low+o.low;
+          if(ns>budget[p].sgi||nl>budget[p].low)continue;
+          const remTot=budget[p].sgi+budget[p].low-ns-nl;
+          if(remTot>future[i+1])continue;
+          if(budget[p].sgi-ns>future[i+1])continue;
+          // 180-dagarsspärren. Lågdagar i samma månad är tillåtna om månadens SGI-dagar först kan passera spärren.
+          if(o.low>0&&sharedSgiBefore+st.sgi<GATE&&sharedSgiBefore+st.sgi+o.sgi<GATE)continue;
+          const diff=(o.pay-target)/Math.max(1200,target||1200);
+          const nc=st.cost+o.cost+diff*diff*0.1;
+          const key=ns+'|'+nl;
+          const old=map.get(key);
+          if(!old||nc<old.cost)map.set(key,{sgi:ns,low:nl,cost:nc,alloc:st.alloc.concat([{mk,p,sgi:o.sgi,low:o.low,pay:o.pay,weekend:o.weekend}])});
+        }
+      }
+      beam=[...map.values()].sort((a,b)=>a.cost-b.cost).slice(0,BEAM);
+      if(!beam.length)break;
+    }
+    let final=beam.find(st=>st.sgi===budget[p].sgi&&st.low===budget[p].low);
+    if(!final&&beam.length){
+      final=[...beam].sort((a,b)=>(a.cost+Math.abs(budget[p].sgi-a.sgi)*1000+Math.abs(budget[p].low-a.low)*1000)-(b.cost+Math.abs(budget[p].sgi-b.sgi)*1000+Math.abs(budget[p].low-b.low)*1000))[0];
+      S.autoInfo.exact=false;
+      S.autoInfo.warnings.push(`${S['p'+p].name}: månadsplanen kunde inte matcha alla dagar exakt. Reservfyllning används.`);
+    }
+    return final||{sgi:0,low:0,cost:0,alloc:[]};
+  }
+
+  const parentOrder=parents.slice().sort((a,b)=>(S['p'+a].start||new Date(2999,0,1))-(S['p'+b].start||new Date(2999,0,1)));
+  const parentPlans={1:[],2:[]};
+  let sharedSgiBefore=0;
+  for(const p of parentOrder){
+    const plan=optimizeParent(p,sharedSgiBefore);
+    parentPlans[p]=plan.alloc;
+    sharedSgiBefore+=budget[p].sgi;
+  }
+
+  const planByMonth={};
+  for(const mk of monthKeys){planByMonth[mk]={1:{sgi:0,low:0},2:{sgi:0,low:0}};}
+  for(const p of parents){
+    for(const it of parentPlans[p])planByMonth[it.mk][p]={sgi:it.sgi,low:it.low};
+  }
+
+  function chooseSpread(arr,count){
+    const a=arr.slice().sort((x,y)=>x.date-y.date||x.p-y.p);
+    if(count<=0)return[];
+    if(count>=a.length)return a;
+    const res=[],used=new Set();
+    for(let i=0;i<count;i++){
+      let idx=Math.round(((i+0.5)*a.length/count)-0.5);
+      idx=Math.max(0,Math.min(a.length-1,idx));
+      let best=idx,dist=0;
+      while(used.has(best)&&dist<a.length){dist++;const left=idx-dist,right=idx+dist;if(left>=0&&!used.has(left)){best=left;break;}if(right<a.length&&!used.has(right)){best=right;break;}}
+      used.add(best);res.push(a[best]);
+    }
+    return res.sort((x,y)=>x.date-y.date||x.p-y.p);
+  }
+  function chooseSlots(cands,count,mode='spread'){
+    const arr=cands.slice().sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);
+    if(count<=0)return[];
+
+    // VIKTIGT: behåll den tidigare, fungerande månadsoptimeringen.
+    // För 180-dagarsspärren ska tidigaste möjliga SGI-dagar fortfarande väljas
+    // i ren kalenderordning. Annars kan lågdagar skjutas bort och månadsbalansen
+    // försämras. Endast den normala datumplaceringen packas veckovis.
+    if(mode==='early'){
+      return arr.filter(x=>!x.nonWork).concat(arr.filter(x=>x.nonWork)).slice(0,count).sort((a,b)=>a.date-b.date||a.p-b.p);
+    }
+
+    // Normal placering efter månadsoptimeringen:
+    // 1) bevara exakt antal dagar som månadsoptimeringen valt för månaden,
+    // 2) prioritera vardagar,
+    // 3) undvik hål inom veckan genom att alltid välja veckans dagar som en prefixserie:
+    //    måndag, tisdag, onsdag, torsdag, fredag,
+    // 4) använd helg/röd dag först när vardagarna inte räcker.
+    function grouped(days){
+      const map=new Map();
+      for(const sl of days){
+        if(!map.has(sl.week))map.set(sl.week,{week:sl.week,first:sl.date,weekday:[],off:[]});
+        const g=map.get(sl.week);
+        if(sl.date<g.first)g.first=sl.date;
+        (sl.nonWork?g.off:g.weekday).push(sl);
+      }
+      const groups=[...map.values()].sort((a,b)=>a.first-b.first);
+      for(const g of groups){
+        g.weekday.sort((a,b)=>a.weekday-b.weekday||a.date-b.date||a.p-b.p);
+        g.off.sort((a,b)=>a.date-b.date||a.p-b.p);
+      }
+      return groups;
+    }
+    function takePrefixByWeek(days,n,bucket){
+      const groups=grouped(days);
+      const picked=[];
+      let maxLen=0;
+      for(const g of groups)maxLen=Math.max(maxLen,g[bucket].length);
+      for(let level=0;level<maxLen&&picked.length<n;level++){
+        for(const g of groups){
+          if(picked.length>=n)break;
+          if(g[bucket][level])picked.push(g[bucket][level]);
+        }
+      }
+      return picked;
+    }
+
+    const weekdays=arr.filter(x=>!x.nonWork);
+    const off=arr.filter(x=>x.nonWork);
+    if(count<=weekdays.length){
+      return takePrefixByWeek(weekdays,count,'weekday').sort((a,b)=>a.date-b.date||a.p-b.p);
+    }
+    return takePrefixByWeek(weekdays,weekdays.length,'weekday')
+      .concat(takePrefixByWeek(off,count-weekdays.length,'off'))
+      .sort((a,b)=>a.date-b.date||a.nonWork-b.nonWork||a.p-b.p);
+  }
+
+  const assigned=new Set();
+  let gateSeen=0,gateDate=null;
+  const placedCount={1:{sgi:0,low:0},2:{sgi:0,low:0}};
+  function available(mk,p,afterDate=null){return (slotsBy[mk][p]||[]).filter(sl=>!assigned.has(daySlotKey(sl))&&(!afterDate||sl.date>afterDate));}
+  function put(sl,type){
+    if(!S.days[sl.ds])S.days[sl.ds]={};
+    S.days[sl.ds]['p'+sl.p]=type;
+    assigned.add(daySlotKey(sl));
+    placedCount[sl.p][type]++;
+    if(type==='sgi'){gateSeen++;if(gateSeen===GATE)gateDate=new Date(sl.date);}
+  }
+  function placeLowSpread(selected,lowCount){const lows=new Set(chooseSpread(selected,lowCount).map(daySlotKey));for(const sl of selected)put(sl,lows.has(daySlotKey(sl))?'low':'sgi');}
+
+  // Placera datum efter månadsoptimeringen. Vardagar väljs först; helg/röd dag används när vardagarna inte räcker.
+  for(const mk of monthKeys){
+    for(const p of parents){
+      let {sgi:s,low:l}=planByMonth[mk][p];
+      if(s+l<=0)continue;
+      if(l>0&&gateSeen<GATE){
+        const need=GATE-gateSeen;
+        const earlyS=Math.min(need,s);
+        for(const sl of chooseSlots(available(mk,p),earlyS,'early'))put(sl,'sgi');
+        s-=earlyS;
+        if(gateSeen<GATE){S.autoInfo.warnings.push(`Lågdagar i ${mk} kunde inte placeras eftersom 180 SGI inte var uppnådda.`);l=0;}
+        const selected=chooseSlots(available(mk,p,gateDate),s+l,'spread');
+        placeLowSpread(selected,l);
+      }else{
+        const selected=chooseSlots(available(mk,p),s+l,'spread');
+        placeLowSpread(selected,l);
+      }
+    }
+  }
+
+  // Reservfyll rester om det behövs.
+  for(const p of parents){
+    for(const typ of ['sgi','low']){
+      let rem=budget[p][typ]-placedCount[p][typ],safety=0;
+      while(rem>0&&safety++<2000){
+        let cands=slots.filter(sl=>sl.p===p&&!assigned.has(daySlotKey(sl)));
+        if(typ==='low')cands=cands.filter(sl=>gateSeen>=GATE&&(!gateDate||sl.date>gateDate));
+        if(!cands.length)break;
+        const chosen=chooseSlots(cands,1,'spread')[0];
+        put(chosen,typ);rem--;
+      }
+      if(rem>0){S.autoInfo.exact=false;S.autoInfo.warnings.push(`${S['p'+p].name}: ${rem} ${typ==='sgi'?'SGI':'låg'}-dagar kunde inte placeras inom perioden.`);}
+    }
+  }
+
+  let seen=0,gateOk=true;
+  const used=[];
+  for(const sl of slots){const v=(S.days[sl.ds]||{})['p'+sl.p];if(v)used.push({...sl,type:v});}
+  used.sort((a,b)=>a.date-b.date||a.p-b.p);
+  for(const it of used){if(it.type==='sgi')seen++;else if(it.type==='low'&&seen<GATE){gateOk=false;break;}}
+  if(!gateOk){S.autoInfo.exact=false;S.autoInfo.warnings.push('Kontrollvarning: minst en lågdag hamnade före 180 SGI-dagar. Justera manuellt eller kör om med längre period.');}
+
+  S.autoInfo.allocated=placedCount;
+  const used1=placedCount[1].sgi+placedCount[1].low,need1=budget[1].sgi+budget[1].low;
+  const used2=placedCount[2].sgi+placedCount[2].low,need2=budget[2].sgi+budget[2].low;
+  S.autoInfo.targetNote=`Fördelade ${used1}/${need1} dagar för ${S.p1.name}`+(S.numParents===2?` och ${used2}/${need2} dagar för ${S.p2.name}`:'')+'.';
+}
+
+// Kör om-knappen ska använda samma återställda motor och uppdatera alla vyer.
+rerunAuto=function(){
+  S.days={};
+  S.transferFrom={};
+  runAutoDistrib();
+  renderAllDays();
+  updateAllMonthTotals();
+  renderSumTable();
+  updateTracker();
+  const msg=document.getElementById('autoResultMsg');
+  if(msg)msg.innerHTML=`✅ <strong>Automatisk fördelning klar!</strong> Optimeringsmotorn har återställts till den jämna månadsfördelningen och extra personer påverkar inte automatiken. ${S.autoInfo&&S.autoInfo.targetNote?S.autoInfo.targetNote:''} ${S.autoInfo&&S.autoInfo.warnings&&S.autoInfo.warnings.length?'<br><strong>Obs:</strong> '+S.autoInfo.warnings.join('<br>'):''}`;
+};
+
+
+
+// ═══════════════ SCENARIO MANAGER ════════════════════
+const SCENARIO_STORAGE_KEY='fpPlanner.scenarios.v1';
+function scenarioSafeJsonParse(raw,fallback){try{return JSON.parse(raw);}catch{return fallback;}}
+function getStoredScenarios(){
+  try{const list=scenarioSafeJsonParse(localStorage.getItem(SCENARIO_STORAGE_KEY)||'[]',[]);return Array.isArray(list)?list.filter(s=>s&&s.id&&s.name&&s.plan):[];}
+  catch(e){return [];}
+}
+function setStoredScenarios(list){try{localStorage.setItem(SCENARIO_STORAGE_KEY,JSON.stringify(list||[]));return true;}catch(e){alert('Kunde inte spara scenarier lokalt i webbläsaren. Kontrollera att lokal lagring/localStorage är tillåten.');return false;}}
+function scenarioId(){return 'sc_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);}
+function scenarioFileSafeName(name){return String(name||'foraldraplan_scenarier').trim().replace(/[\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,80)||'foraldraplan_scenarier';}
+function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+function defaultScenarioName(){
+  const n=getStoredScenarios().length+1;
+  const names=baseParents().map(p=>(ensurePersonState(p).name||getInputValue(`p${p}name`)||('Förälder '+p))).join(' och ');
+  return `Scenario ${n} · ${names||'Planering'} · ${new Date().toLocaleDateString('sv-SE')}`;
+}
+function currentPlanHasContent(){return !!(S.numParents||Object.keys(S.days||{}).length||getInputValue('p1name')||getInputValue('p2name')||getInputValue('birthDate'));}
+function buildCurrentPlanPayloadForScenario(){
+  if(!S.numParents){alert('Välj först om planeringen gäller en eller två föräldrar.');return null;}
+  syncStateFromForm();
+  if(typeof updateTransfer==='function')updateTransfer(false);
+  if(typeof setRemainingDaysFromInputs==='function')setRemainingDaysFromInputs(false);
+  if(typeof cleanTransfers==='function')cleanTransfers();
+  if(typeof validateBeforeSave==='function'&&!validateBeforeSave())return null;
+  const fv={birthDate:getInputValue('birthDate'),p1xfer:getInputValue('p1xfer'),p2xfer:getInputValue('p2xfer'),autoDistrib:getCheckboxValue('autoDistrib'),asProt1:getCheckboxValue('asProt1',true),asProt2:getCheckboxValue('asProt2',true),manualRemaining:!!S.manualRemaining,extraPersons:S.extraPersons||0};
+  for(const p of activeParents()){
+    const ps=ensurePersonState(p);
+    fv[`p${p}name`]=getInputValue(`p${p}name`);
+    fv[`p${p}sgi`]=getInputValue(`p${p}sgi`);
+    fv[`p${p}tax`]=getInputValue(`p${p}tax`);
+    fv[`p${p}start`]=getInputValue(`p${p}start`);
+    fv[`p${p}end`]=getInputValue(`p${p}end`);
+    fv[`p${p}planLeave`]=!!ps.planLeave;
+    if(isBaseParent(p)){fv[`p${p}remSgi`]=ps.sgiDays;fv[`p${p}remLow`]=ps.lowDays;}
+  }
+  const state={numParents:S.numParents,extraPersons:S.extraPersons||0,manualRemaining:!!S.manualRemaining,birth:iso(S.birth),calStart:iso(S.calStart),calEnd:iso(S.calEnd),days:S.days||{},transferFrom:S.transferFrom||{},autoInfo:S.autoInfo||null};
+  for(let p=1;p<=MAX_PERSONS;p++){const ps=ensurePersonState(p);state['p'+p]={...ps,start:iso(ps.start),end:iso(ps.end)};}
+  return {version:13,savedAt:new Date().toISOString(),fv,state};
+}
+function refreshScenarioList(){
+  const list=getStoredScenarios().sort((a,b)=>String(a.name).localeCompare(String(b.name),'sv'));
+  const status=document.getElementById('scenarioStatus');
+  const box=document.getElementById('scenarioInlineList');
+  if(box){
+    if(!list.length){box.innerHTML='<div class="scenario-empty">Inga scenarier sparade ännu. Tryck på <strong>Spara planering</strong> när du vill lägga till det aktuella upplägget.</div>';}
+    else{
+      box.innerHTML=list.map(s=>{
+        const meta=s.savedAt?new Date(s.savedAt).toLocaleString('sv-SE'):'';
+        return `<div class="scenario-row" data-id="${escapeHtml(s.id)}">
+          <input type="text" value="${escapeHtml(s.name)}" oninput="renameScenarioLocal('${escapeHtml(s.id)}',this.value)" onblur="refreshScenarioList()" title="Ändra scenarionamn">
+          <div class="sc-meta">${escapeHtml(meta)}</div>
+          <div class="sc-actions"><button type="button" class="mini-btn" onclick="loadScenarioLocal('${escapeHtml(s.id)}')">Ladda</button><button type="button" class="mini-btn del" onclick="deleteScenarioLocal('${escapeHtml(s.id)}')">Ta bort</button></div>
+        </div>`;
+      }).join('');
+    }
+  }
+  if(status)status.innerHTML=list.length?`💾 <strong>${list.length}</strong> scenario${list.length===1?'':'n'} sparade lokalt. När du är klar kan du spara samtliga scenarier i en gemensam fil.`:'Inga scenarier sparade lokalt ännu.';
+}
+function renameScenarioLocal(id,newName){
+  const name=String(newName||'').trim();
+  if(!id||!name)return;
+  const list=getStoredScenarios();
+  const scen=list.find(s=>s.id===id);if(!scen)return;
+  scen.name=name;scen.savedAt=scen.savedAt||new Date().toISOString();
+  setStoredScenarios(list);
+}
+function saveCurrentScenarioLocal(){
+  const plan=buildCurrentPlanPayloadForScenario();if(!plan)return;
+  const list=getStoredScenarios();
+  const name=defaultScenarioName();
+  list.push({id:scenarioId(),name,savedAt:new Date().toISOString(),plan});
+  if(!setStoredScenarios(list))return;
+  refreshScenarioList();
+  toast('💾 Planeringen har lagts till som scenario. Du kan ändra namnet i listan.');
+}
+// Den befintliga gröna "Spara planering"-knappen lägger nu till aktuellt upplägg som ett lokalt scenario.
+savePlan=function(){saveCurrentScenarioLocal();};
+function loadScenarioLocal(id){
+  const scen=getStoredScenarios().find(s=>s.id===id);if(!scen){alert('Scenariot hittades inte.');refreshScenarioList();return;}
+  if(currentPlanHasContent()&&!confirm(`Ladda scenariot ”${scen.name}”? Nuvarande planering i vyn ersätts, men sparade scenarier ligger kvar.`))return;
+  applyPlan(JSON.parse(JSON.stringify(scen.plan)));
+  toast('📥 Scenario laddat.');
+}
+function deleteScenarioLocal(id){
+  const list=getStoredScenarios();const scen=list.find(s=>s.id===id);if(!scen){refreshScenarioList();return;}
+  if(!confirm(`Ta bort scenariot ”${scen.name}” från denna webbläsare?`))return;
+  if(!setStoredScenarios(list.filter(s=>s.id!==id)))return;
+  refreshScenarioList();toast('🗑️ Scenario borttaget.');
+}
+// Bakåtkompatibla alias om äldre knappar/element finns kvar i cachad vy.
+function loadSelectedScenarioLocal(){const first=getStoredScenarios()[0];if(first)loadScenarioLocal(first.id);else alert('Inga scenarier finns sparade.');}
+function deleteSelectedScenarioLocal(){const first=getStoredScenarios()[0];if(first)deleteScenarioLocal(first.id);else alert('Inga scenarier finns sparade.');}
+function makeScenarioBundle(){return {kind:'foraldrapenning-scenario-bundle',version:2,savedAt:new Date().toISOString(),toolVersion:'netto-gullig-v11',scenarios:getStoredScenarios()};}
+function downloadScenarioBundle(){
+  const bundle=makeScenarioBundle();
+  if(!bundle.scenarios.length){alert('Det finns inga lokalt sparade scenarier att spara i fil. Tryck först på Spara planering för minst ett scenario.');return;}
+  let fileName=prompt('Namn på scenariefilen:',`foraldraplan_scenarier_${ds(new Date())}`);
+  if(fileName===null)return;
+  fileName=scenarioFileSafeName(fileName||`foraldraplan_scenarier_${ds(new Date())}`);
+  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=fileName.endsWith('.fpscenarios')?fileName:fileName+'.fpscenarios';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('📦 Scenariefil skapad.');
+}
+function isScenarioBundle(data){return !!(data&&Array.isArray(data.scenarios)&&(data.kind==='foraldrapenning-scenario-bundle'||data.version!==undefined));}
+function normalizeImportedScenario(s,i){
+  if(!s)return null;
+  if(s.plan&&s.name)return {id:s.id||scenarioId(),name:String(s.name||`Scenario ${i+1}`),savedAt:s.savedAt||new Date().toISOString(),plan:s.plan};
+  if(s.fv&&s.state)return {id:scenarioId(),name:`Scenario ${i+1}`,savedAt:s.savedAt||new Date().toISOString(),plan:s};
+  return null;
+}
+function importScenarioBundleData(data,sourceName='fil'){
+  let imported=[];
+  if(isScenarioBundle(data))imported=data.scenarios.map(normalizeImportedScenario).filter(Boolean);
+  else if(data&&data.fv&&data.state){
+    const name=prompt('Filen innehåller en enskild planering. Ange namn på scenariot:',sourceName.replace(/\.(fpplan|json|fpscenarios)$/i,''));
+    if(!name)return;
+    imported=[{id:scenarioId(),name,savedAt:new Date().toISOString(),plan:data}];
+  }else{alert('Filen verkar inte vara en giltig scenariefil eller planeringsfil.');return;}
+  if(!imported.length){alert('Inga scenarier kunde läsas in.');return;}
+  const replace=confirm(`Läsa in ${imported.length} scenario${imported.length===1?'':'n'} från filen?\n\nOK = ersätt lokalt sparade scenarier.\nAvbryt = lägg till/uppdatera bland befintliga scenarier.`);
+  let list=replace?[]:getStoredScenarios();
+  for(const inc of imported){
+    const existing=list.find(s=>s.name.toLowerCase()===inc.name.toLowerCase());
+    if(existing){existing.savedAt=inc.savedAt||new Date().toISOString();existing.plan=inc.plan;}
+    else list.push({...inc,id:inc.id||scenarioId()});
+  }
+  if(!setStoredScenarios(list))return;
+  refreshScenarioList();toast(`📂 ${imported.length} scenario${imported.length===1?'':'n'} inlästa.`);
+}
+function loadScenarioBundle(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{try{importScenarioBundleData(JSON.parse(e.target.result),file.name);}catch(err){alert('Kunde inte läsa scenariefilen. Kontrollera att det är rätt fil.');}ev.target.value='';};
+  rd.readAsText(file);
+}
+// Gör vanliga "Ladda planering" smart: om filen är en scenariefil importeras alla scenarier.
+loadPlan=function(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(isScenarioBundle(data)){importScenarioBundleData(data,file.name);}
+      else if(data&&data.fv&&data.state){applyPlan(data);}
+      else alert('Ogiltig fil');
+    }catch{alert('Kunde inte läsa filen');}
+    ev.target.value='';
+  };
+  rd.readAsText(file);
+};
+
+
+// ═══════════════ V12: SÄKER LADDNING AV SCENARIO/PLAN ═══════════════
+function clearUiBeforePlanLoad(){
+  // Nollställ aktuell vy innan en ny plan/scenario läses in. Det hindrar gamla
+  // kalenderdagar/överlåtelser från att tillfälligt räknas mot den nya dagpotten.
+  if(typeof MAX_PERSONS!=='undefined'){
+    S.numParents=0;S.extraPersons=0;S.manualRemaining=false;S.transferFrom={};
+    for(let p=1;p<=MAX_PERSONS;p++){
+      S['p'+p]={name:(typeof PERSON_CARD_LABEL!=='undefined'&&PERSON_CARD_LABEL[p])||('Person '+p),sgi:0,tax:30,sgiDays:p<=2?195:0,lowDays:p<=2?45:0,start:null,end:null,planLeave:false};
+    }
+  }else{
+    S.numParents=0;S.p1={name:'Förälder 1',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null};S.p2={name:'Förälder 2',sgi:0,tax:30,sgiDays:195,lowDays:45,start:null,end:null};
+  }
+  S.birth=null;S.days={};S.calStart=null;S.calEnd=null;S.autoInfo=null;allHols={};
+  const idsToClear=['birthDate','p1name','p1sgi','p1start','p1end','p2name','p2sgi','p2start','p2end'];
+  idsToClear.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  [['p1tax','30'],['p2tax','30'],['p1xfer','0'],['p2xfer','0']].forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val;});
+  ['p1w240','p2w240','autoDistrib'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  ['asProt1','asProt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=true;});
+  ['trackerInner','calMonths','sumBody','totalsBars','xferResult','extraCards','remainingInputs'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  const cal=document.getElementById('calSection');if(cal)cal.classList.add('hidden');
+  const tracker=document.getElementById('stickyTracker');if(tracker)tracker.classList.remove('visible');
+  const autoBox=document.getElementById('autoResultBox');if(autoBox)autoBox.classList.add('hidden');
+  const warn=document.getElementById('planWarning');if(warn){warn.style.opacity='0';warn.innerHTML='';}
+}
+const applyPlanLoadedScenarioV11=applyPlan;
+applyPlan=function(data){
+  clearUiBeforePlanLoad();
+  applyPlanLoadedScenarioV11(data);
+};
+
+
+// ═══════════════ V14: SNABBARE FILVAL + ÖPPNA SCENARIO DIREKT ═══════════════
+function importScenarioBundleDataAndOpen(data,sourceName='fil'){
+  let imported=[];
+  if(isScenarioBundle(data)){
+    imported=data.scenarios.map(normalizeImportedScenario).filter(Boolean);
+  }else if(data&&data.fv&&data.state){
+    // En enskild planeringsfil öppnas direkt. Den läggs inte automatiskt i scenariolistan,
+    // eftersom den gröna Spara-knappen används för att lägga till scenarier lokalt.
+    applyPlan(data);
+    return;
+  }else{
+    alert('Filen verkar inte vara en giltig scenariefil eller planeringsfil.');
+    return;
+  }
+  if(!imported.length){alert('Inga scenarier kunde läsas in.');return;}
+
+  const replace=confirm(`Läsa in ${imported.length} scenario${imported.length===1?'':'n'} från filen?\n\nOK = ersätt lokalt sparade scenarier.\nAvbryt = lägg till/uppdatera bland befintliga scenarier.`);
+  let list=replace?[]:getStoredScenarios();
+  for(const inc of imported){
+    const existing=list.find(s=>String(s.name||'').toLowerCase()===String(inc.name||'').toLowerCase());
+    if(existing){existing.savedAt=inc.savedAt||new Date().toISOString();existing.plan=inc.plan;}
+    else list.push({...inc,id:inc.id||scenarioId()});
+  }
+  if(!setStoredScenarios(list))return;
+  refreshScenarioList();
+
+  // Öppna första inlästa scenariot direkt, så användaren hamnar i kalendervyn
+  // även om filen laddas från startsidan.
+  const first=imported[0];
+  if(first&&first.plan){
+    applyPlan(JSON.parse(JSON.stringify(first.plan)));
+    // Efter applyPlan har scenariolistan ritats om i kalenderläget; säkerställ att den syns.
+    refreshScenarioList();
+    toast(`📂 ${imported.length} scenario${imported.length===1?'':'n'} inlästa. Första scenariot har öppnats.`);
+  }else{
+    toast(`📂 ${imported.length} scenario${imported.length===1?'':'n'} inlästa.`);
+  }
+}
+
+// Behåll gammalt funktionsnamn för eventuella äldre anrop, men låt det nya beteendet gälla.
+importScenarioBundleData=function(data,sourceName='fil'){
+  importScenarioBundleDataAndOpen(data,sourceName);
+};
+
+// Ny filinläsning: label/for öppnar filväljaren direkt, och efter inläsning öppnas planen/scenariot.
+loadPlan=function(ev){
+  const file=ev&&ev.target&&ev.target.files?ev.target.files[0]:null;
+  if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      importScenarioBundleDataAndOpen(data,file.name);
+    }catch(err){
+      alert('Kunde inte läsa filen. Kontrollera att det är en giltig .fpplan-, .fpscenarios- eller .json-fil.');
+    }
+    ev.target.value='';
+  };
+  rd.readAsText(file);
+};
+
+loadScenarioBundle=function(ev){
+  loadPlan(ev);
+};
+
+// ═══════════════ INIT ════════════════════
+updateDaysGrid();
+refreshScenarioList();
+</script>
+</body>
+</html>
